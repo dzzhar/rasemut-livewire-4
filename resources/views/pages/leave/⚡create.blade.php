@@ -65,25 +65,14 @@ new class extends Component {
 
     <form class="pt-6 space-y-6" wire:show="showForm" x-transition.duration.500ms wire:submit.prevent="save">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <flux:field>
-                <flux:label>Tanggal Mulai</flux:label>
-                <flux:input wire:model="start_date" type="date" x-on:click="$el.showPicker()"
-                    icon:trailing="calendar" />
-                <flux:error name="start_date" />
-            </flux:field>
-
-            <flux:field>
-                <flux:label>Tanggal Selesai</flux:label>
-                <flux:input wire:model="end_date" type="date" x-on:click="$el.showPicker()"
-                    icon:trailing="calendar" />
-                <flux:error name="end_date" />
-            </flux:field>
+            <flux:input label="Tanggal Mulai" wire:model="start_date" type="date" x-on:click="$el.showPicker()"
+                icon:trailing="calendar" />
+            <flux:input label="Tanggal Selesai" wire:model="end_date" type="date" x-on:click="$el.showPicker()"
+                icon:trailing="calendar" />
         </div>
 
-        <flux:field>
-            <flux:textarea wire:model="description" label="Keterangan" placeholder="Keterangan izin anda..."
-                resize="none" />
-        </flux:field>
+        <flux:textarea wire:model="description" label="Keterangan" placeholder="Keterangan izin anda..."
+            resize="none" />
 
         <flux:button variant="primary" color="blue" class="w-full" type="submit">Kirim
         </flux:button>

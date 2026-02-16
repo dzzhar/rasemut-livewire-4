@@ -24,12 +24,13 @@
 
         <flux:navmenu class="max-w-48">
             <div class="px-2 py-1.5">
-                <flux:text size="sm">Signed in as</flux:text>
+                <flux:text size="sm">Masuk sebagai</flux:text>
                 <flux:heading class="mt-1! truncate">caleb@example.com</flux:heading>
             </div>
 
             <flux:navmenu.separator />
-            <flux:navmenu.item href="/account" icon="user" class="text-zinc-800 dark:text-white">Account
+            <flux:navmenu.item href="/account" icon="user" class="text-zinc-800 dark:text-white">
+                Akun
             </flux:navmenu.item>
 
             <flux:navmenu.separator />

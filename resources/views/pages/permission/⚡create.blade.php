@@ -65,20 +65,14 @@ new class extends Component {
     </div>
 
     <form class="space-y-6 mt-4" wire:show="showForm" x-transition.duration.500ms wire:submit.prevent="save">
-        <flux:field>
-            <flux:label>Jenis Izin</flux:label>
-            <flux:select wire:model="permission_type" placeholder="Pilih jenis izin...">
-                @foreach ($this->types() as $label)
-                    <flux:select.option>{{ $label }}</flux:select.option>
-                @endforeach
-            </flux:select>
-            <flux:error name="permission_type" />
-        </flux:field>
+        <flux:select label="Jenis Izin" wire:model="permission_type" placeholder="Pilih jenis izin...">
+            @foreach ($this->types() as $label)
+                <flux:select.option>{{ $label }}</flux:select.option>
+            @endforeach
+        </flux:select>
 
-        <flux:field>
-            <flux:textarea wire:model="description" label="Keterangan" placeholder="Keterangan izin anda..."
-                resize="none" />
-        </flux:field>
+        <flux:textarea wire:model="description" label="Keterangan" placeholder="Keterangan izin anda..."
+            resize="none" />
 
         <flux:button variant="primary" color="blue" class="w-full" type="submit">Kirim
         </flux:button>
