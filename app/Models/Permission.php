@@ -29,11 +29,6 @@ class Permission extends Model
         return $this->permission_date;
     }
 
-    public function getBadgeColorAttribute(): string
-    {
-        return 'green';
-    }
-
     public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'employee_id');

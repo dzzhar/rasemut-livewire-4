@@ -2,14 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\AttendanceStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * @property \Carbon\Carbon|null $attendance_date
- * @property string|null $status
- * @property string|null $description
- */
 class Attendance extends Model
 {
     protected $table = 'attendances';
@@ -21,7 +17,8 @@ class Attendance extends Model
         'employee_id'
     ];
     protected $casts = [
-        'attendance_date' => 'datetime'
+        'attendance_date' => 'datetime',
+        'status' => AttendanceStatus::class
     ];
 
     public function getHistoryTypeAttribute()
@@ -32,18 +29,6 @@ class Attendance extends Model
     public function getHistoryDateAttribute()
     {
         return $this->attendance_date;
-    }
-
-    public function getBadgeColorAttribute(): string
-    {
-        return match ($this->status) {
-            'tepat waktu' => 'green',
-            'terlambat' => 'yellow',
-            'akhir shift' => 'green',
-            'pulang cepat' => 'orange',
-            'lembur' => 'blue',
-            'tidak absen' => 'red',
-        };
     }
 
     public function employee(): BelongsTo

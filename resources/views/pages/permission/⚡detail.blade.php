@@ -1,51 +1,49 @@
 <?php
 
-use App\Models\Attendance;
+use App\Models\Permission;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component {
-    public ?Attendance $selected = null;
+    public ?Permission $selected = null;
 
     #[On('show-detail-history')]
     public function showDetail(int $id)
     {
-        $this->selected = Attendance::select('id', 'attendance_date', 'attendance_type', 'status', 'description')->where('employee_id', 2)->where('id', $id)->first();
+        $this->selected = Permission::select('id', 'permission_date', 'permission_type', 'status', 'description')->where('employee_id', 2)->where('id', $id)->first();
 
         if ($this->selected) {
-            $this->modal('detail-modal-attendance')->show();
+            $this->modal('detail-modal-permission')->show();
         }
     }
 };
 ?>
 
 
-<flux:modal name="detail-modal-attendance" class="md:w-96">
+<flux:modal name="detail-modal-permission" class="md:w-96">
     <div class="space-y-6">
-        <flux:heading size="lg">Detail Informasi Presensi</flux:heading>
+        <flux:heading size="lg">Detail Informasi Izin</flux:heading>
 
         @if ($selected)
             <div>
-                <flux:heading>Jenis Presensi</flux:heading>
+                <flux:heading>Jenis Izin</flux:heading>
                 <flux:text class="mt-2 capitalize">{{ $selected->history_type }}</flux:text>
             </div>
             <div>
-                <flux:heading>Tanggal Presensi</flux:heading>
+                <flux:heading>Tanggal Izin</flux:heading>
                 <flux:text class="mt-2">
                     {{ $selected->history_date ? $selected->history_date->translatedFormat('l, d F Y • H:i:s') . ' WIB' : '-' }}
                 </flux:text>
             </div>
             <div>
                 <flux:heading>Keterangan</flux:heading>
-                <flux:text class="mt-2">
+                <flux:text class="mt-2 capitalize">
                     {{ $selected->description ?? '-' }}
                 </flux:text>
             </div>
             <div>
                 <flux:heading>Status</flux:heading>
-                <flux:badge rounded size="sm" :color="$selected->status->badgeColor()" class="mt-2">
-                    {{ $selected->status }}
-                </flux:badge>
+                <flux:badge rounded size="sm" color="green" class="mt-2">{{ $selected->status }}</flux:badge>
             </div>
         @endif
 

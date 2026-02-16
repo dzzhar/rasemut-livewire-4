@@ -18,7 +18,7 @@
         @include('layouts.partials.header')
         @include('layouts.partials.sidebar')
 
-        <flux:main container class="max-w-5xl! space-y-8">
+        <flux:main container class="max-w-4xl! space-y-8">
             {{ $slot }}
         </flux:main>
 

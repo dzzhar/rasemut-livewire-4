@@ -2,10 +2,11 @@
 
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component {
-    public int $employeeId = 1;
+    public int $employeeId = 2;
     public string $headerTitle;
 
     public $filterDate = null;
@@ -22,8 +23,8 @@ new class extends Component {
     #[Computed]
     public function history()
     {
-        $model = $this->model;
-        $query = $model::where('employee_id', $this->employeeId)->select($this->select);
+        $query = $this->model::where('employee_id', $this->employeeId)
+            ->select($this->select);
 
         // cek apakah ada filter tanggal
         if ($this->filterDate) {
@@ -34,6 +35,14 @@ new class extends Component {
         }
 
         return $query->latest($this->dateColumn)->get();
+    }
+
+    #[On('refresh-history')]
+    public function refreshHistory() {}
+
+    public function showModal($id)
+    {
+        $this->dispatch('show-detail-history', id: $id);
     }
 
     public function mount()

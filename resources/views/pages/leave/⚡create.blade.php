@@ -7,7 +7,7 @@ use Livewire\Component;
 
 new class extends Component {
     public $showForm = false;
-    public int $employeeId = 1;
+    public int $employeeId = 2;
 
     #[Validate('required|after_or_equal:today')]
     public $start_date;
@@ -45,6 +45,7 @@ new class extends Component {
         });
 
         $this->reset();
+        $this->dispatch('refresh-history');
     }
 };
 ?>

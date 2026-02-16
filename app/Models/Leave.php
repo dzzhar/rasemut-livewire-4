@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\LeaveStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -20,7 +21,8 @@ class Leave extends Model
     protected $casts = [
         'request_date' => 'datetime',
         'start_date' => 'datetime',
-        'end_date' => 'datetime'
+        'end_date' => 'datetime',
+        'status' => LeaveStatus::class
     ];
 
     public function getHistoryTypeAttribute()
@@ -31,15 +33,6 @@ class Leave extends Model
     public function getHistoryDateAttribute()
     {
         return $this->request_date;
-    }
-
-    public function getBadgeColorAttribute(): string
-    {
-        return match ($this->status) {
-            'pending' => 'yellow',
-            'disetujui' => 'green',
-            'ditolak' => 'red',
-        };
     }
 
     public function employee(): BelongsTo
