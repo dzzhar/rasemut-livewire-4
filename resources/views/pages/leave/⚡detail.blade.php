@@ -10,7 +10,12 @@ new class extends Component {
     #[On('show-detail-history')]
     public function showDetail(int $id)
     {
-        $this->selected = Leave::select('id', 'request_date', 'leave_code', 'start_date', 'end_date', 'status', 'description')->where('employee_id', 2)->where('id', $id)->first();
+        $employee = Auth::user()?->employee;
+        if (!$employee) {
+            return collect();
+        }
+
+        $this->selected = Leave::select('id', 'request_date', 'leave_code', 'start_date', 'end_date', 'status', 'description')->whereBelongsTo($employee)->where('id', $id)->first();
 
         if ($this->selected) {
             $this->modal('detail-modal-leave')->show();

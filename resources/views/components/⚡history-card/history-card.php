@@ -1,12 +1,12 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component {
-    public int $employeeId = 2;
     public string $headerTitle;
 
     public $filterDate = null;
@@ -20,10 +20,21 @@ new class extends Component {
     #[Locked]
     public array $select = [];
 
+    public function mount()
+    {
+        $this->min = now()->startOfMonth()->toDateString();
+        $this->max = now()->endOfMonth()->toDateString();
+    }
+
     #[Computed]
     public function history()
     {
-        $query = $this->model::where('employee_id', $this->employeeId)
+        $employee = Auth::user()?->employee;
+        if (!$employee) {
+            return collect();
+        }
+
+        $query = $this->model::whereBelongsTo($employee)
             ->select($this->select);
 
         // cek apakah ada filter tanggal
@@ -43,11 +54,5 @@ new class extends Component {
     public function showModal($id)
     {
         $this->dispatch('show-detail-history', id: $id);
-    }
-
-    public function mount()
-    {
-        $this->min = now()->startOfMonth()->toDateString();
-        $this->max = now()->endOfMonth()->toDateString();
     }
 };

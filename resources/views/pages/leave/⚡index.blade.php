@@ -1,9 +1,9 @@
 <?php
 
-use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Layout('layouts::app', ['title' => 'Cuti'])] class extends Component {
+new #[Title('Cuti')] class extends Component {
     //
 };
 ?>

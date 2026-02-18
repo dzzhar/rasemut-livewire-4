@@ -7,7 +7,6 @@ use Livewire\Component;
 
 new class extends Component {
     public $showForm = false;
-    public int $employeeId = 2;
 
     public function types()
     {
@@ -27,8 +26,13 @@ new class extends Component {
     {
         $this->validate();
 
+        $employee = Auth::user()?->employee;
+        if (!$employee) {
+            return collect();
+        }
+
         // cek apakah telah izin hari ini
-        $alreadyExists = Permission::where('employee_id', $this->employeeId)->whereDate('permission_date', today())->exists();
+        $alreadyExists = Permission::where('employee_id', $this->employeeId)->whereBelongsTo($employee)->whereDate('permission_date', today())->exists();
 
         if ($alreadyExists) {
             // send toast

@@ -3,7 +3,7 @@
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
-new #[Layout('layouts::app')] class extends Component {
+new class extends Component {
     public function getGreetingProperty()
     {
         $hour = now()->format('H');
@@ -19,7 +19,11 @@ new #[Layout('layouts::app')] class extends Component {
 
 
 <div class="space-y-8">
-    <flux:heading size="xl" level="1"> {{ $this->greeting }}, Zharifah 👋</flux:heading>
+    <flux:heading size="xl" level="1">
+        {{ $this->greeting . ', ' . ucfirst(Str::before(auth()->user()->employee?->fullname, ' ')) }} 👋
+    </flux:heading>
+
+    <flux:separator variant="subtle" class="my-8" />
 
     <livewire:pages::attendance.create />
     <livewire:history-card headerTitle="Riwayat Presensi" model="\App\Models\Attendance" dateColumn="attendance_date"

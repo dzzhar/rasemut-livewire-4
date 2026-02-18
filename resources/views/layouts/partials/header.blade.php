@@ -14,28 +14,34 @@
 
     <flux:spacer />
 
-    <flux:navbar class="me-4">
-        <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle"
-            aria-label="Toggle dark mode" />
-    </flux:navbar>
+    <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle"
+        aria-label="Toggle dark mode" class="mr-2" />
 
     <flux:dropdown align="end">
-        <flux:profile avatar:name="Zharifah Dzikra Purnomo" />
+        <flux:profile avatar:name="{{ auth()->user()->employee?->fullname ?? ' ' }}" />
 
         <flux:navmenu class="max-w-48">
             <div class="px-2 py-1.5">
                 <flux:text size="sm">Masuk sebagai</flux:text>
-                <flux:heading class="mt-1! truncate">caleb@example.com</flux:heading>
+                <flux:heading class="mt-1! truncate">{{ auth()->user()->email }}</flux:heading>
             </div>
 
             <flux:navmenu.separator />
-            <flux:navmenu.item href="/account" icon="user" class="text-zinc-800 dark:text-white">
-                Akun
+            <flux:navmenu.item href="/profile" icon="user" class="text-zinc-800 dark:text-white">
+                Profil
+            </flux:navmenu.item>
+            <flux:navmenu.item href="/password" icon="lock-closed" class="text-zinc-800 dark:text-white">
+                Kata Sandi
             </flux:navmenu.item>
 
             <flux:navmenu.separator />
-            <flux:navmenu.item href="/logout" icon="arrow-right-start-on-rectangle"
-                class="text-zinc-800 dark:text-white">Logout</flux:navmenu.item>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <flux:navmenu.item as="button" type="submit" icon="arrow-right-start-on-rectangle"
+                    class="text-zinc-800 dark:text-white cursor-pointer">
+                    Logout
+                </flux:navmenu.item>
+            </form>
         </flux:navmenu>
     </flux:dropdown>
 </flux:header>

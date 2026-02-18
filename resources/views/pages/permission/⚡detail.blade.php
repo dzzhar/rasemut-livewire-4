@@ -10,7 +10,12 @@ new class extends Component {
     #[On('show-detail-history')]
     public function showDetail(int $id)
     {
-        $this->selected = Permission::select('id', 'permission_date', 'permission_type', 'status', 'description')->where('employee_id', 2)->where('id', $id)->first();
+        $employee = Auth::user()?->employee;
+        if (!$employee) {
+            return collect();
+        }
+
+        $this->selected = Permission::select('id', 'permission_date', 'permission_type', 'status', 'description')->whereBelongsTo($employee)->find($id);
 
         if ($this->selected) {
             $this->modal('detail-modal-permission')->show();

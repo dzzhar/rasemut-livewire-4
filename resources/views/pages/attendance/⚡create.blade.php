@@ -7,17 +7,18 @@ new class extends Component {
     public $check_in;
     public $check_out;
     public $button;
-    public int $employeeId = 2;
+    public int $employeeId;
 
     public function mount()
     {
+        $this->employeeId = Auth::user()->id;
         $service = new AttendanceService($this->employeeId);
         $this->refreshState($service);
     }
 
     protected function refreshState(AttendanceService $service)
     {
-        $today = $service->getTodayAttendance();
+        $today = $service->getTodayState();
         $this->check_in = $today['masuk'];
         $this->check_out = $today['pulang'];
         $this->setButtonStatus();

@@ -19,9 +19,9 @@
     @apply !max-w-4xl !mx-auto;
 }
 
-[data-flux-separator] {
+/* [data-flux-separator] {
     @apply bg-zinc-800/10 dark:bg-white/20;
-}
+} */
 
 @layer utilities {
 

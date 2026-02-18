@@ -7,7 +7,6 @@ use Livewire\Component;
 
 new class extends Component {
     public $showForm = false;
-    public int $employeeId = 2;
 
     #[Validate('required|after_or_equal:today')]
     public $start_date;
@@ -20,8 +19,13 @@ new class extends Component {
     {
         $this->validate();
 
+        $employee = Auth::user()?->employee;
+        if (!$employee) {
+            return collect();
+        }
+
         // cek apakah cuti sudah dibooking
-        $alreadyExists = Leave::where('employee_id', $this->employeeId)
+        $alreadyExists = Leave::whereBelongsTo($employee)
             ->where(function ($query) {
                 $query->where('start_date', '<=', $this->end_date)->where('end_date', '>=', $this->start_date);
             })
