@@ -32,7 +32,7 @@ new class extends Component {
         }
 
         // cek apakah telah izin hari ini
-        $alreadyExists = Permission::where('employee_id', $this->employeeId)->whereBelongsTo($employee)->whereDate('permission_date', today())->exists();
+        $alreadyExists = Permission::whereBelongsTo($employee)->whereDate('permission_date', today())->exists();
 
         if ($alreadyExists) {
             // send toast
@@ -42,7 +42,7 @@ new class extends Component {
         // jika belum izin hari ini
         DB::transaction(function () {
             Permission::create([
-                'employee_id' => $this->employeeId,
+                'employee_id' => Auth::user()->employee->id,
                 'permission_date' => now(),
                 'permission_type' => $this->permission_type,
                 'description' => $this->description,

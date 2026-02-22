@@ -39,7 +39,7 @@ new class extends Component {
         // jika belum, simpan
         DB::transaction(function () {
             Leave::create([
-                'employee_id' => $this->employeeId,
+                'employee_id' => Auth::user()->employee->id,
                 'request_date' => now(),
                 'leave_code' => 'Cuti ' . '#' . now()->format('dMyHis'),
                 'start_date' => $this->start_date,

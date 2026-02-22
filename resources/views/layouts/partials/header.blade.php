@@ -27,10 +27,10 @@
             </div>
 
             <flux:navmenu.separator />
-            <flux:navmenu.item href="/profile" icon="user" class="text-zinc-800 dark:text-white">
+            <flux:navmenu.item href="/profile" icon="user" class="text-zinc-800 dark:text-white" wire:navigate>
                 Profil
             </flux:navmenu.item>
-            <flux:navmenu.item href="/password" icon="lock-closed" class="text-zinc-800 dark:text-white">
+            <flux:navmenu.item href="/password" icon="lock-closed" class="text-zinc-800 dark:text-white" wire:navigate>
                 Kata Sandi
             </flux:navmenu.item>
 

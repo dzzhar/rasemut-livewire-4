@@ -16,4 +16,13 @@ enum LeaveStatus: string
             self::Ditolak => 'red',
         };
     }
+
+    public function filamentBadgeColor(): string
+    {
+        return match ($this) {
+            self::Pending => 'warning',
+            self::Disetujui => 'success',
+            self::Ditolak => 'danger',
+        };
+    }
 }

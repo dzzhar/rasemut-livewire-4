@@ -16,6 +16,7 @@
     </div>
 
     <div class="hidden md:block">
-        <flux:badge rounded :color="$status?->badgeColor()" size="sm">{{ $status ?? 'belum absen' }}</flux:badge>
+        <flux:badge rounded :color="$status?->badgeColor()" size="sm">{{ $status ?? 'belum absen' }}
+        </flux:badge>
     </div>
 </flux:card>

@@ -1,57 +1,36 @@
 <?php
 
 use App\Models\Employee;
+use App\Actions\Fortify\UpdateUserProfileInformation;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 new #[Title('Akun')] class extends Component {
-    #[Validate('required|string|max:50')]
     public $fullname;
-    #[Validate('required|string|max:50')]
     public $employee_code;
-    public $position;
+    public $position_name;
     public $status;
-
-    public function saveProfile()
-    {
-        $this->validate();
-
-        $user = Auth::user();
-
-        if (!$user) {
-            return;
-        }
-
-        $employee = $user->employee;
-
-        if ($employee) {
-            $employee->update([
-                'fullname' => ucwords(strtolower($this->fullname)),
-                'employee_code' => $this->employee_code,
-            ]);
-        } else {
-            $user->employee()->create([
-                'fullname' => ucwords(strtolower($this->fullname)),
-                'employee_code' => $this->employee_code,
-            ]);
-        }
-
-        // otomatis reload halaman SPA
-        $this->redirect(request()->header('Referer'), navigate: true);
-    }
 
     public function mount()
     {
-        $employee = Auth::user()?->employee;
+        $employee = Auth::user()->employee;
 
-        if ($employee) {
-            $this->fullname = $employee->fullname;
-            $this->employee_code = $employee->employee_code;
-            $this->position = $employee->position->position_name;
-            $this->status = $employee->user->is_active ? 'Nonaktif' : 'Aktif';
-        }
+        $this->fullname = $employee?->fullname;
+        $this->employee_code = $employee?->employee_code;
+        $this->position_name = $employee?->position?->position_name;
+        $this->status = Auth::user()->is_active ? 'Aktif' : 'Nonaktif';
+    }
+
+    public function updateProfile(UpdateUserProfileInformation $updater)
+    {
+        $updater->update(Auth::user(), [
+            'fullname' => $this->fullname,
+            'employee_code' => $this->employee_code,
+        ]);
+
+        $this->redirect(request()->header('Referer'), navigate: true);
     }
 };
 ?>
@@ -59,7 +38,6 @@ new #[Title('Akun')] class extends Component {
 
 <div>
     <flux:heading size="xl">Pengaturan Profil</flux:heading>
-
     <flux:separator variant="subtle" class="my-8" />
 
     <div class="flex flex-col lg:flex-row gap-4 lg:gap-6">
@@ -68,14 +46,16 @@ new #[Title('Akun')] class extends Component {
             <flux:subheading>Perubahan profil Anda akan tercatat dan dapat dilihat oleh admin.</flux:subheading>
         </div>
 
-        <form class="flex-1 space-y-6" wire:submit.prevent="saveProfile">
-            <flux:input label="Nama Lengkap" placeholder="Zharifah Dzikra Purnomo" badge="required"
-                wire:model="fullname" />
-            <flux:input label="Nomor Pegawai" placeholder="21093012931" badge="required" wire:model="employee_code" />
+        <form class="flex-1 space-y-6" wire:submit.prevent="updateProfile">
+
+            <flux:input label="Nama Lengkap" badge="required" wire:model="fullname"
+                placeholder="Masukkan nama lengkap Anda" />
+            <flux:input label="Nomor Pegawai" badge="required" wire:model="employee_code"
+                placeholder="Masukkan nomor pegawai Anda" />
 
             {{-- readonly --}}
-            <flux:input label="Jabatan Pegawai" wire:model="position" readonly variant="filled" />
-            <flux:input label="Status Pegawai" wire:model="status" readonly variant="filled" />
+            <flux:input label="Jabatan Pegawai" :value="$position_name" readonly variant="filled" />
+            <flux:input label="Status Pegawai" :value="$status" readonly variant="filled" />
 
             <div class="flex justify-end">
                 <flux:button variant="primary" type="submit">Simpan Perubahan</flux:button>

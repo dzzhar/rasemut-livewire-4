@@ -11,7 +11,7 @@ new class extends Component {
 
     public function mount()
     {
-        $this->employeeId = Auth::user()->id;
+        $this->employeeId = Auth::user()->employee->id;
         $service = new AttendanceService($this->employeeId);
         $this->refreshState($service);
     }

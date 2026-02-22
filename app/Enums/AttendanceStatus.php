@@ -46,4 +46,16 @@ enum AttendanceStatus: string
             self::TidakAbsen => 'text-red-700 dark:text-red-200',
         };
     }
+
+    public function filamentBadgeColor(): string
+    {
+        return match ($this) {
+            self::TepatWaktu => 'success',
+            self::Terlambat => 'warning',
+            self::PulangCepat => 'warning',
+            self::AkhirShift => 'success',
+            self::Lembur => 'primary',
+            self::TidakAbsen => 'danger',
+        };
+    }
 }
