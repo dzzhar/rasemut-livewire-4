@@ -19,7 +19,7 @@ new #[Title('Akun')] class extends Component {
 
         $this->fullname = $employee?->fullname;
         $this->employee_code = $employee?->employee_code;
-        $this->position_name = $employee?->position?->position_name;
+        $this->position_name = $employee?->position?->name;
         $this->status = Auth::user()->is_active ? 'Aktif' : 'Nonaktif';
     }
 

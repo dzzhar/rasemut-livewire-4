@@ -33,7 +33,7 @@ class PositionResource extends Resource
     {
         return $schema
             ->components([
-                TextInput::make('position_name')
+                TextInput::make('name')
                     ->label('Nama Jabatan')
                     ->required(),
                 Textarea::make('description')
@@ -47,7 +47,7 @@ class PositionResource extends Resource
     {
         return $schema
             ->components([
-                TextEntry::make('position_name')
+                TextEntry::make('name')
                     ->label('Nama Jabatan'),
                 TextEntry::make('description')
                     ->label('Keterangan'),
@@ -58,7 +58,7 @@ class PositionResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('position_name')
+                TextColumn::make('name')
                     ->label('Nama Jabatan')
                     ->searchable(),
             ])

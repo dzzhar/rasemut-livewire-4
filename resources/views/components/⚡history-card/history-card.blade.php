@@ -32,13 +32,13 @@
                     </flux:tooltip>
                 </flux:heading>
 
-                <div class="flex items-end justify-between mt-0 md:mt-4 gap-10">
+                <div class="flex items-end justify-between mt-0 md:mt-2 gap-10">
                     <div class="min-w-0">
                         <flux:text class="text-zinc-900 dark:text-zinc-100 font-medium">
                             {{ $item->history_date ? $item->history_date->translatedFormat('l, d F Y • H:i:s') . ' WIB' : '-' }}
                         </flux:text>
 
-                        <flux:text class="mt-0.5 text-zinc-500 dark:text-zinc-400 text-sm hidden md:block truncate">
+                        <flux:text class="text-zinc-500 dark:text-zinc-400 text-sm hidden md:block truncate">
                             Keterangan: {{ $item->description ?? '-' }}
                         </flux:text>
                     </div>

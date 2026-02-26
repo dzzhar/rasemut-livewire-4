@@ -20,16 +20,10 @@ class RoleMiddleware
             return redirect()->route('login');
         }
 
-        $userRole = Auth::user()->role;
-
-        if ($userRole == $role) {
-            return $next($request);
+        if (Auth::user()->role !== $role) {
+            abort(403);
         }
 
-        return match ($userRole) {
-            'admin' => redirect('/admin'),
-            'employee' => redirect('/'),
-            default => redirect('/login'),
-        };
+        return $next($request);
     }
 }

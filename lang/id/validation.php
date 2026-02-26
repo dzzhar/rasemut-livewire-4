@@ -3,10 +3,14 @@
 return [
     // custom validation message
     'required' => 'Kolom :attribute wajib diisi.',
+    'string' => 'Kolom :attribute harus berupa string.',
     'min' => ['string' => 'Kolom :attribute minimal :min karakter.'],
     'after_or_equal' => 'Kolom :attribute harus setelah atau sama dengan hari ini.',
     'after' => 'Kolom :attribute harus setelah tanggal mulai.',
     'email' => 'Kolom :attribute harus berupa email yang valid.',
+    'unique' => 'Kolom :attribute sudah digunakan.',
+    'confirmed' => 'Kolom :attribute konfirmasi tidak cocok.',
+    'different' => 'Kolom :attribute harus berbeda dengan :other.',
     'password' => [
         'letters' => 'Kolom :attribute harus mengandung minimal satu huruf.',
         'mixed' => 'Kolom :attribute harus mengandung huruf besar dan kecil.',
@@ -27,6 +31,5 @@ return [
         'password' => 'kata sandi',
         'current_password' => 'kata sandi saat ini',
         'password_confirmation' => 'konfirmasi kata sandi',
-
     ]
 ];

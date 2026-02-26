@@ -64,11 +64,11 @@ class EmployeeResource extends Resource
                     ->label('Role')
                     ->options([
                         'admin' => 'Admin',
-                        'employee' => 'Employee'
+                        'employee' => 'Karyawan'
                     ])
                     ->required(),
                 Select::make('position_id')
-                    ->relationship('position', 'position_name')
+                    ->relationship('position', 'name')
                     ->label('Jabatan')
                     ->required(),
             ]);
@@ -87,11 +87,15 @@ class EmployeeResource extends Resource
                 TextEntry::make('user.role')
                     ->label('Role')
                     ->badge()
+                    ->formatStateUsing(fn($state) => match ($state) {
+                        'admin' => 'admin',
+                        'employee' => 'karyawan',
+                    })
                     ->color(fn($state) => match ($state) {
-                        'employee' => 'warning',
-                        'admin' => 'success'
+                        'admin' => 'success',
+                        'employee' => 'warning'
                     }),
-                TextEntry::make('position.position_name')
+                TextEntry::make('position.name')
                     ->label('Jabatan'),
                 TextEntry::make('is_active')
                     ->label('Status')
@@ -127,11 +131,15 @@ class EmployeeResource extends Resource
                     ->sortable(),
                 ToggleColumn::make('is_active')
                     ->label('Aktif'),
-                TextColumn::make('position.position_name')
+                TextColumn::make('position.name')
                     ->label('Jabatan'),
                 TextColumn::make('user.role')
                     ->label('Role')
                     ->badge()
+                    ->formatStateUsing(fn($state) => match ($state) {
+                        'admin' => 'admin',
+                        'employee' => 'karyawan',
+                    })
                     ->color(fn($state) => match ($state) {
                         'employee' => 'warning',
                         'admin' => 'success'

@@ -57,7 +57,7 @@ class PermissionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('Izin')
+            ->defaultSort('permission_date', 'desc')
             ->columns([
                 TextColumn::make('permission_date')
                     ->label('Tanggal Izin')

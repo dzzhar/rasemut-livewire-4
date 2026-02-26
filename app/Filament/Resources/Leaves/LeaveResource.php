@@ -58,6 +58,7 @@ class LeaveResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('request_date', 'desc')
             ->columns([
                 TextColumn::make('request_date')
                     ->label('Tanggal Pengajuan')

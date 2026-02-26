@@ -2,7 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::livewire('/login', 'pages::auth.login')->name('login');
+
+Route::livewire('/login', 'pages::auth.login')->name('login')->middleware('guest');
 
 Route::middleware(['auth', 'role:employee'])->group(function () {
     Route::livewire('/', 'pages::attendance.index')->name('attendance');

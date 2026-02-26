@@ -53,6 +53,7 @@ class AttendanceResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('attendance_date', 'desc')
             ->columns([
                 TextColumn::make('attendance_date')
                     ->label('Tanggal Presensi')

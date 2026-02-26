@@ -7,12 +7,12 @@ use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -22,7 +22,22 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(LoginResponse::class, function () {
+            return new class implements LoginResponse {
+                public function toResponse($request)
+                {
+                    $user = $request->user();
+
+                    return redirect()->to(
+                        match ($user->role) {
+                            'admin' => '/admin',
+                            'employee' => '/',
+                            default => '/login',
+                        }
+                    );
+                }
+            };
+        });
     }
 
     /**
@@ -70,19 +85,6 @@ class FortifyServiceProvider extends ServiceProvider
 
         Fortify::loginView(function () {
             return view('pages.auth.⚡login');
-        });
-
-        $this->app->instance(\Laravel\Fortify\Contracts\LoginResponse::class, new class implements \Laravel\Fortify\Contracts\LoginResponse {
-            public function toResponse($request)
-            {
-                $role = Auth::user()->role;
-
-                if ($role === 'admin') {
-                    return redirect('/admin');
-                }
-
-                return redirect('/');
-            }
         });
     }
 }

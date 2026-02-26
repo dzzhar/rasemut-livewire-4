@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('positions', function (Blueprint $table) {
             $table->id();
-            $table->string('position_name', 256)->index();
+            $table->string('name', 256)->index();
             $table->text('description');
             $table->timestamps();
         });
