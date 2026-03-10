@@ -41,9 +41,9 @@ class AttendanceService
             // cek presensi hari ini
             $today = $this->getAttendanceByDate($now);
 
-            if (!$today['masuk']) {
+            if (!$today['in']) {
                 $this->doCheckIn($now);
-            } elseif (!$today['pulang']) {
+            } elseif (!$today['out']) {
                 $this->doCheckOut($now);
             }
         });
@@ -70,7 +70,7 @@ class AttendanceService
         Attendance::create([
             'employee_id' => $this->employeeId,
             'attendance_date' => $now,
-            'attendance_type' => 'masuk',
+            'attendance_type' => 'in',
             'status' => $status,
             'description' => $desc
         ]);
@@ -110,7 +110,7 @@ class AttendanceService
         Attendance::create([
             'employee_id' => $this->employeeId,
             'attendance_date' => $now,
-            'attendance_type' => 'pulang',
+            'attendance_type' => 'out',
             'status' => $status,
             'description' => $desc
         ]);
@@ -119,7 +119,7 @@ class AttendanceService
     // handle data presensi yang tidak melakukan aksi kemarin
     protected function handleYesterday(): void
     {
-        $yesterday = now()->subDay();
+        $yesterday = now()->subDay()->startOfDay();
 
         // kalo kemarin bukan hari kerja → stop
         if (!$this->isWorkingDay($yesterday)) {
@@ -129,14 +129,14 @@ class AttendanceService
         // kalo iya hari kerja, cek data presensi kemarin
         $data = $this->getAttendanceByDate($yesterday);
 
-        // Tidak klik sama sekali
-        if (!$data['masuk'] && !$data['pulang']) {
 
+        // Tidak klik sama sekali
+        if (!$data['in'] && !$data['out']) {
             // simpan data presensi masuk dengan status tidak absen
             Attendance::create([
                 'employee_id' => $this->employeeId,
                 'attendance_date' => $yesterday,
-                'attendance_type' => 'masuk',
+                'attendance_type' => 'in',
                 'status' => 'tidak absen',
                 'description' => 'Tidak melakukan presensi masuk'
             ]);
@@ -145,19 +145,19 @@ class AttendanceService
             Attendance::create([
                 'employee_id' => $this->employeeId,
                 'attendance_date' => $yesterday,
-                'attendance_type' => 'pulang',
+                'attendance_type' => 'out',
                 'status' => 'tidak absen',
                 'description' => 'Tidak melakukan presensi pulang'
             ]);
         }
 
         // check-in tetapi tidak check-out
-        elseif ($data['masuk'] && !$data['pulang']) {
+        elseif ($data['in'] && !$data['out']) {
             // simpan data presensi pulang dengan status tidak absen
             Attendance::create([
                 'employee_id' => $this->employeeId,
                 'attendance_date' => $yesterday,
-                'attendance_type' => 'pulang',
+                'attendance_type' => 'out',
                 'status' => 'tidak absen',
                 'description' => 'Tidak melakukan presensi pulang'
             ]);
@@ -165,7 +165,7 @@ class AttendanceService
     }
 
     // fungsi untuk cek hari kerja (senin-jumat)
-    protected function isWorkingDay(Carbon $date): bool
+    public function isWorkingDay(Carbon $date): bool
     {
         return $date->isWeekday();
     }
@@ -179,8 +179,8 @@ class AttendanceService
             ->keyBy('attendance_type');
 
         return [
-            'masuk' => $data->get('masuk'),
-            'pulang' => $data->get('pulang'),
+            'in' => $data->get('in'),
+            'out' => $data->get('out'),
         ];
     }
 }

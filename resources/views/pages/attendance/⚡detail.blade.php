@@ -32,7 +32,7 @@ new class extends Component {
         @if ($selected)
             <div>
                 <flux:heading>Jenis Presensi</flux:heading>
-                <flux:text class="mt-2 capitalize">{{ $selected->history_type }}</flux:text>
+                <flux:text class="mt-2 capitalize">{{ 'Check ' . $selected->attendance_type }}</flux:text>
             </div>
             <div>
                 <flux:heading>Tanggal Presensi</flux:heading>
@@ -42,7 +42,7 @@ new class extends Component {
             </div>
             <div>
                 <flux:heading>Keterangan</flux:heading>
-                <flux:text class="mt-2">
+                <flux:text class="mt-2 whitespace-normal wrap-break-word capitalize">
                     {{ $selected->description ?? '-' }}
                 </flux:text>
             </div>
@@ -56,9 +56,7 @@ new class extends Component {
 
         <div class="flex">
             <flux:spacer />
-            <flux:modal.close>
-                <flux:button variant="primary" size="sm">Kembali</flux:button>
-            </flux:modal.close>
+            <flux:button variant="primary" size="sm" x-on:click="$flux.modals().close()">Kembali</flux:button>
         </div>
     </div>
 </flux:modal>

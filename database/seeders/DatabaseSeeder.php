@@ -16,6 +16,9 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        Position::factory(5)->create();
+        AttendanceSetting::factory()->create();
+
         $specialUser = User::factory()->create([
             'email' => 'coba@gmail.com',
             'password' => Hash::make('password'),
@@ -23,32 +26,32 @@ class DatabaseSeeder extends Seeder
 
         $employee = Employee::factory()->create([
             'user_id' => $specialUser->id,
+            'fullname' => 'John Doe',
+            'employee_code' => 'EMP001',
+            'is_active' => true,
+            'position_id' => Position::inRandomOrder()->first()->id,
         ]);
-
-        Position::factory(5)->create();
-        AttendanceSetting::factory()->create();
 
         $startOfMonth = now()->startOfMonth();
 
         for ($i = 0; $i < 500; $i++) {
-
-            $tanggal = $startOfMonth->copy()
+            $tanggalMasuk = $startOfMonth->copy()
                 ->addDays(rand(0, 29))
                 ->setTime(rand(7, 9), rand(0, 59));
 
             Attendance::factory()->create([
                 'employee_id' => $employee->id,
-                'attendance_date' => $tanggal,
-                'attendance_type' => 'masuk',
+                'attendance_date' => $tanggalMasuk,
+                'attendance_type' => 'in',
             ]);
 
-            $tanggalPulang = $tanggal->copy()
+            $tanggalPulang = $tanggalMasuk->copy()
                 ->setTime(rand(16, 19), rand(0, 59));
 
             Attendance::factory()->create([
                 'employee_id' => $employee->id,
                 'attendance_date' => $tanggalPulang,
-                'attendance_type' => 'pulang',
+                'attendance_type' => 'out',
             ]);
         }
 

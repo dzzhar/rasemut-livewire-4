@@ -37,29 +37,17 @@ class EmployeeResource extends Resource
             ->components([
                 TextInput::make('fullname')
                     ->label('Nama Lengkap')
+                    ->placeholder('Masukkan nama lengkap')
                     ->required(),
                 TextInput::make('employee_code')
                     ->label('Nomor Karyawan')
+                    ->placeholder('Masukkan nomor karyawan')
                     ->required()
                     ->unique(
                         table: 'employees',
                         column: 'employee_code',
                         ignorable: fn($record) => $record
                     ),
-                TextInput::make('user_email')
-                    ->label('Email')
-                    ->email()
-                    ->unique(
-                        table: 'users',
-                        column: 'email',
-                        ignorable: fn($record) => $record?->user
-                    )
-                    ->required(),
-                TextInput::make('user_password')
-                    ->label('Kata Sandi')
-                    ->password()
-                    ->revealable()
-                    ->required(fn($record) => $record === null),
                 Select::make('user_role')
                     ->label('Role')
                     ->options([
@@ -71,6 +59,22 @@ class EmployeeResource extends Resource
                     ->relationship('position', 'name')
                     ->label('Jabatan')
                     ->required(),
+                TextInput::make('user_email')
+                    ->label('Email')
+                    ->placeholder('Masukkan email karyawan terdaftar')
+                    ->email()
+                    ->unique(
+                        table: 'users',
+                        column: 'email',
+                        ignorable: fn($record) => $record?->user
+                    )
+                    ->required(),
+                TextInput::make('user_password')
+                    ->label('Kata Sandi')
+                    ->placeholder('Masukkan kata sandi untuk karyawan')
+                    ->password()
+                    ->revealable()
+                    ->required(fn($record) => $record === null),
             ]);
     }
 
@@ -87,27 +91,15 @@ class EmployeeResource extends Resource
                 TextEntry::make('user.role')
                     ->label('Role')
                     ->badge()
-                    ->formatStateUsing(fn($state) => match ($state) {
-                        'admin' => 'admin',
-                        'employee' => 'karyawan',
-                    })
-                    ->color(fn($state) => match ($state) {
-                        'admin' => 'success',
-                        'employee' => 'warning'
-                    }),
+                    ->formatStateUsing(fn($state) => $state === 'admin' ? 'admin' : 'karyawan')
+                    ->color(fn($state) => $state === 'admin' ? 'success' : 'primary'),
                 TextEntry::make('position.name')
                     ->label('Jabatan'),
                 TextEntry::make('is_active')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn($state) => match ($state) {
-                        0 => 'nonaktif',
-                        1 => 'aktif',
-                    })
-                    ->color(fn($state) => match ($state) {
-                        0 => 'danger',
-                        1 => 'success'
-                    }),
+                    ->formatStateUsing(fn($state) => $state === 0 ? 'nonaktif' : 'aktif')
+                    ->color(fn($state) => $state === 0 ? 'warning' : 'success'),
                 TextEntry::make('user.created_at')
                     ->datetime('l, d M Y H:i:s')
                     ->suffix(' WIB'),
@@ -120,6 +112,7 @@ class EmployeeResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('is_active', 'desc')
             ->columns([
                 TextColumn::make('fullname')
                     ->label('Nama Lengkap')
@@ -136,19 +129,10 @@ class EmployeeResource extends Resource
                 TextColumn::make('user.role')
                     ->label('Role')
                     ->badge()
-                    ->formatStateUsing(fn($state) => match ($state) {
-                        'admin' => 'admin',
-                        'employee' => 'karyawan',
-                    })
-                    ->color(fn($state) => match ($state) {
-                        'employee' => 'warning',
-                        'admin' => 'success'
-                    })
+                    ->formatStateUsing(fn($state) => $state === 'admin' ? 'admin' : 'karyawan')
+                    ->color(fn($state) => $state === 'admin' ? 'success' : 'primary')
                     ->alignCenter()
                     ->sortable(),
-            ])
-            ->filters([
-                //
             ])
             ->recordActions([
                 ViewAction::make(),

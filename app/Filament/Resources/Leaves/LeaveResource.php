@@ -27,6 +27,21 @@ class LeaveResource extends Resource
     protected static string|UnitEnum|null $navigationGroup = "Kehadiran";
     protected static ?int $navigationSort = 3;
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('status', 'pending')->count();
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return static::getModel()::where('status', 'pending')->count() > 1 ? 'warning' : 'primary';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Menunggu persetujuan Anda';
+    }
+
     public static function infolist(Schema $schema): Schema
     {
         return $schema
@@ -50,6 +65,7 @@ class LeaveResource extends Resource
                     ->badge()
                     ->color(fn($state) => $state?->filamentBadgeColor()),
                 TextEntry::make('description')
+                    ->label('Keterangan')
                     ->placeholder('-')
                     ->columnSpanFull(),
             ]);
@@ -58,7 +74,6 @@ class LeaveResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultSort('request_date', 'desc')
             ->columns([
                 TextColumn::make('request_date')
                     ->label('Tanggal Pengajuan')
@@ -84,10 +99,7 @@ class LeaveResource extends Resource
                     ])
                     ->native(false)
                     ->selectablePlaceholder(false)
-                    ->rules(['required']),
-            ])
-            ->filters([
-                //
+                    ->rules(['required'])
             ])
             ->recordActions([
                 ViewAction::make(),

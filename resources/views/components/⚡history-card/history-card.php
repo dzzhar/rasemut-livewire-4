@@ -9,6 +9,7 @@ use Livewire\Component;
 new class extends Component {
     public string $headerTitle;
 
+    public int $perPage = 10;
     public $filterDate = null;
     public $min;
     public $max;
@@ -34,18 +35,46 @@ new class extends Component {
             return collect();
         }
 
-        $query = $this->model::whereBelongsTo($employee)
-            ->select($this->select);
+        $query = $this->model::whereBelongsTo($employee)->select($this->select);
 
         // cek apakah ada filter tanggal
         if ($this->filterDate) {
             $query->whereDate($this->dateColumn, $this->filterDate);
         } else {
             // default tanggal history
-            $query->whereMonth($this->dateColumn, now()->month)->whereYear($this->dateColumn, now()->year);
+            $query->whereBetween($this->dateColumn, [now()->startOfMonth(), now()->endOfMonth()]);
         }
 
-        return $query->latest($this->dateColumn)->get();
+        return $query->latest($this->dateColumn)->limit($this->perPage)->get();
+    }
+
+    #[Computed]
+    public function totalHistory()
+    {
+        $employee = Auth::user()?->employee;
+        if (!$employee) {
+            return 0;
+        }
+
+        $query = $this->model::whereBelongsTo($employee);
+
+        if ($this->filterDate) {
+            $query->whereDate($this->dateColumn, $this->filterDate);
+        } else {
+            $query->whereBetween($this->dateColumn, [now()->startOfMonth(), now()->endOfMonth()]);
+        }
+
+        return $query->count();
+    }
+
+    public function loadMore()
+    {
+        $this->perPage += 10;
+    }
+
+    public function updatedFilterDate()
+    {
+        $this->perPage = 10;
     }
 
     #[On('refresh-history')]

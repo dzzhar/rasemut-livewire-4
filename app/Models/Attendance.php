@@ -26,7 +26,7 @@ class Attendance extends Model
 
     public function getHistoryTypeAttribute()
     {
-        return 'Absensi ' . $this->attendance_type;
+        return "Check " . $this->attendance_type;
     }
 
     public function getHistoryDateAttribute()

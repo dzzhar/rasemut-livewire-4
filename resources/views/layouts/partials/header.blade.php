@@ -23,15 +23,13 @@
         <flux:navmenu class="max-w-48">
             <div class="px-2 py-1.5">
                 <flux:text size="sm">Masuk sebagai</flux:text>
-                <flux:heading class="mt-1! truncate">{{ auth()->user()->email }}</flux:heading>
+                <flux:heading class="mt-1! truncate">{{ auth()->user()->employee->fullname ?? auth()->user()->email }}
+                </flux:heading>
             </div>
 
             <flux:navmenu.separator />
-            <flux:navmenu.item href="/profile" icon="user" class="text-zinc-800 dark:text-white" wire:navigate>
-                Profil
-            </flux:navmenu.item>
-            <flux:navmenu.item href="/password" icon="lock-closed" class="text-zinc-800 dark:text-white" wire:navigate>
-                Kata Sandi
+            <flux:navmenu.item href="/settings" icon="user" class="text-zinc-800 dark:text-white" wire:navigate>
+                Pengaturan
             </flux:navmenu.item>
 
             <flux:navmenu.separator />

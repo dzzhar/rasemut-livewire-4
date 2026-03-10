@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
             $table->timestamp('attendance_date')->index();
-            $table->enum('attendance_type', ['masuk', 'pulang']);
+            $table->enum('attendance_type', ['in', 'out']);
             $table->enum('status', ['tepat waktu', 'terlambat', 'akhir shift', 'pulang cepat', 'lembur', 'tidak absen']);
             $table->text('description')->nullable();
             $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();

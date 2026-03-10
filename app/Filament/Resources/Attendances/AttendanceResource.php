@@ -39,7 +39,7 @@ class AttendanceResource extends Resource
                 TextEntry::make('attendance_type')
                     ->label('Presensi')
                     ->badge()
-                    ->color(fn($state) => $state === 'masuk' ? 'success' : 'danger'),
+                    ->color(fn($state) => $state === 'in' ? 'success' : 'danger'),
                 TextEntry::make('status')
                     ->badge()
                     ->color(fn($state) => $state->filamentBadgeColor()),
@@ -66,7 +66,9 @@ class AttendanceResource extends Resource
                 TextColumn::make('attendance_type')
                     ->label('Presensi')
                     ->badge()
-                    ->color(fn($state) => $state === 'masuk' ? 'success' : 'danger')
+                    ->color(fn($state) => $state === 'in' ? 'success' : 'danger')
+                    ->formatStateUsing(fn($state) => $state === 'in' ? 'Check In' : 'Check Out')
+                    ->alignCenter()
                     ->sortable(),
                 TextColumn::make('status')
                     ->badge()

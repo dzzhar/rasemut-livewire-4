@@ -48,10 +48,9 @@ new #[Layout('layouts::auth')] class extends Component {
 
             <form method="POST" action="{{ route('login') }}" class="flex flex-col gap-6">
                 @csrf
-                <flux:input label="Email" type="email" placeholder="emailanda@gmail.com" wire:model="email"
-                    :value="old('email')" />
-                <flux:input label="Kata Sandi" type="password" placeholder="Kata sandi Anda" wire:model="password"
-                    viewable />
+                <flux:input label="Email" type="email" placeholder="emailanda@gmail.com" name="email"
+                    :value="old('email')" autocomplete="email" />
+                <flux:input label="Kata Sandi" type="password" placeholder="Kata sandi Anda" name="password" viewable />
                 <flux:button variant="primary" class="w-full" type="submit">Log in</flux:button>
             </form>
         </div>

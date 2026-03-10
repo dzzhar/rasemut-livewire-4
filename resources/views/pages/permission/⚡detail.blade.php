@@ -42,7 +42,7 @@ new class extends Component {
             </div>
             <div>
                 <flux:heading>Keterangan</flux:heading>
-                <flux:text class="mt-2 capitalize">
+                <flux:text class="mt-2 whitespace-normal wrap-break-word capitalize">
                     {{ $selected->description ?? '-' }}
                 </flux:text>
             </div>
@@ -54,9 +54,7 @@ new class extends Component {
 
         <div class="flex">
             <flux:spacer />
-            <flux:modal.close>
-                <flux:button variant="primary" size="sm">Kembali</flux:button>
-            </flux:modal.close>
+            <flux:button variant="primary" size="sm" x-on:click="$flux.modals().close()">Kembali</flux:button>
         </div>
     </div>
 </flux:modal>

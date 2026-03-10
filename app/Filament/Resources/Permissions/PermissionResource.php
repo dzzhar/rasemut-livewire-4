@@ -75,11 +75,8 @@ class PermissionResource extends Resource
                         'sakit' => 'primary',
                         default => 'danger'
                     })
+                    ->alignCenter()
                     ->sortable(),
-                TextColumn::make('status')
-                    ->badge()
-                    ->color('success')
-                    ->alignCenter(),
             ])
             ->filters([
                 //
