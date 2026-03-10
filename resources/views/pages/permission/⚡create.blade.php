@@ -44,7 +44,7 @@ new class extends Component {
         }
 
         // jika belum izin hari ini
-        DB::transaction(function () {
+        DB::transaction(function () use ($employee) {
             Permission::create([
                 'employee_id' => $employee->id,
                 'permission_date' => now(),
