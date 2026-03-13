@@ -35,46 +35,24 @@ class EmployeeResource extends Resource
     {
         return $schema
             ->components([
-                TextInput::make('fullname')
-                    ->label('Nama Lengkap')
-                    ->placeholder('Masukkan nama lengkap')
-                    ->required(),
-                TextInput::make('employee_code')
-                    ->label('Nomor Karyawan')
-                    ->placeholder('Masukkan nomor karyawan')
-                    ->required()
-                    ->unique(
-                        table: 'employees',
-                        column: 'employee_code',
-                        ignorable: fn($record) => $record
-                    ),
-                Select::make('user_role')
-                    ->label('Role')
-                    ->options([
-                        'admin' => 'Admin',
-                        'employee' => 'Karyawan'
-                    ])
-                    ->required(),
-                Select::make('position_id')
-                    ->relationship('position', 'name')
-                    ->label('Jabatan')
-                    ->required(),
-                TextInput::make('user_email')
-                    ->label('Email')
-                    ->placeholder('Masukkan email karyawan terdaftar')
-                    ->email()
-                    ->unique(
-                        table: 'users',
-                        column: 'email',
-                        ignorable: fn($record) => $record?->user
-                    )
-                    ->required(),
-                TextInput::make('user_password')
-                    ->label('Kata Sandi')
-                    ->placeholder('Masukkan kata sandi untuk karyawan')
-                    ->password()
-                    ->revealable()
-                    ->required(fn($record) => $record === null),
+                TextInput::make('fullname')->label('Nama Lengkap')->placeholder('Masukkan nama lengkap')->required(),
+                TextInput::make('employee_code')->label('Nomor Karyawan')->placeholder('Masukkan nomor karyawan')->unique(
+                    table: 'employees',
+                    column: 'employee_code',
+                    ignorable: fn($record) => $record
+                )->required(),
+                Select::make('user_role')->label('Role')->options([
+                    'admin' => 'Admin',
+                    'employee' => 'Karyawan'
+                ])->required(),
+                Select::make('position_id')->relationship('position', 'name')->label('Jabatan')->required(),
+                TextInput::make('user_email')->label('Email')->placeholder('Masukkan email karyawan terdaftar')->email()->unique(
+                    table: 'users',
+                    column: 'email',
+                    ignorable: fn($record) => $record?->user
+                )->required(),
+                TextInput::make('user_password')->label('Kata Sandi')->placeholder('Masukkan kata sandi untuk karyawan')->password()
+                    ->revealable()->required(fn($record) => $record === null),
             ]);
     }
 
@@ -82,30 +60,18 @@ class EmployeeResource extends Resource
     {
         return $schema
             ->components([
-                TextEntry::make('fullname')
-                    ->label('Nama Lengkap'),
-                TextEntry::make('user.email')
-                    ->label('Email'),
-                TextEntry::make('employee_code')
-                    ->label('Nomor Karyawan'),
-                TextEntry::make('user.role')
-                    ->label('Role')
-                    ->badge()
-                    ->formatStateUsing(fn($state) => $state === 'admin' ? 'admin' : 'karyawan')
-                    ->color(fn($state) => $state === 'admin' ? 'success' : 'primary'),
-                TextEntry::make('position.name')
-                    ->label('Jabatan'),
-                TextEntry::make('is_active')
-                    ->label('Status')
-                    ->badge()
-                    ->formatStateUsing(fn($state) => $state === 0 ? 'nonaktif' : 'aktif')
-                    ->color(fn($state) => $state === 0 ? 'warning' : 'success'),
-                TextEntry::make('user.created_at')
-                    ->datetime('l, d M Y H:i:s')
-                    ->suffix(' WIB'),
-                TextEntry::make('user.updated_at')
-                    ->datetime('l, d M Y H:i:s')
-                    ->suffix(' WIB'),
+                TextEntry::make('fullname')->label('Nama Lengkap'),
+                TextEntry::make('user.email')->label('Email'),
+                TextEntry::make('employee_code')->label('Nomor Karyawan'),
+                TextEntry::make('user.role')->label('Role')->badge()->formatStateUsing(
+                    fn($state) => $state === 'admin' ? 'admin' : 'karyawan'
+                )->color(fn($state) => $state === 'admin' ? 'success' : 'primary'),
+                TextEntry::make('position.name')->label('Jabatan'),
+                TextEntry::make('is_active')->label('Status')->badge()->formatStateUsing(
+                    fn($state) => $state === 0 ? 'nonaktif' : 'aktif'
+                )->color(fn($state) => $state === 0 ? 'warning' : 'success'),
+                TextEntry::make('user.created_at')->datetime('l, d M Y H:i:s')->suffix(' WIB'),
+                TextEntry::make('user.updated_at')->datetime('l, d M Y H:i:s')->suffix(' WIB'),
             ]);
     }
 
@@ -114,25 +80,15 @@ class EmployeeResource extends Resource
         return $table
             ->defaultSort('is_active', 'desc')
             ->columns([
-                TextColumn::make('fullname')
-                    ->label('Nama Lengkap')
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('employee_code')
-                    ->label('Nomor Karyawan')
-                    ->searchable()
-                    ->sortable(),
-                ToggleColumn::make('is_active')
-                    ->label('Aktif'),
-                TextColumn::make('position.name')
-                    ->label('Jabatan'),
-                TextColumn::make('user.role')
-                    ->label('Role')
-                    ->badge()
-                    ->formatStateUsing(fn($state) => $state === 'admin' ? 'admin' : 'karyawan')
-                    ->color(fn($state) => $state === 'admin' ? 'success' : 'primary')
-                    ->alignCenter()
-                    ->sortable(),
+                TextColumn::make('fullname')->label('Nama Lengkap')->searchable()->sortable(),
+                TextColumn::make('employee_code')->label('Nomor Karyawan')->searchable()->sortable(),
+                ToggleColumn::make('is_active')->label('Aktif'),
+                TextColumn::make('position.name')->label('Jabatan'),
+                TextColumn::make('user.role')->label('Role')->badge()->formatStateUsing(
+                    fn($state) => $state === 'admin' ? 'admin' : 'karyawan'
+                )->color(
+                    fn($state) => $state === 'admin' ? 'success' : 'primary'
+                )->alignCenter()->sortable(),
             ])
             ->recordActions([
                 ViewAction::make(),
@@ -147,9 +103,7 @@ class EmployeeResource extends Resource
                 DeleteAction::make()->action(fn(Employee $record) => app(EmployeeService::class)->delete($record)),
             ])
             ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                BulkActionGroup::make([DeleteBulkAction::make()]),
             ]);
     }
 

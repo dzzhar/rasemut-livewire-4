@@ -30,27 +30,17 @@ class PermissionResource extends Resource
     {
         return $schema
             ->components([
-                TextEntry::make('permission_date')
-                    ->label('Tanggal Izin')
-                    ->dateTime('l, d M Y H:i:s')
-                    ->suffix(' WIB'),
-                TextEntry::make('employee.fullname')
-                    ->label('Nama Karyawan'),
-                TextEntry::make('permission_type')
-                    ->label('Jenis')
-                    ->badge()
-                    ->color(fn($state) => match ($state) {
+                TextEntry::make('permission_date')->label('Tanggal Izin')->dateTime('l, d M Y H:i:s')->suffix(' WIB'),
+                TextEntry::make('employee.fullname')->label('Nama Karyawan'),
+                TextEntry::make('permission_type')->label('Jenis')->badge()->color(
+                    fn($state) => match ($state) {
                         'izin' => 'warning',
                         'sakit' => 'primary',
                         default => 'danger'
-                    }),
-                TextEntry::make('status')
-                    ->badge()
-                    ->color('success'),
-                TextEntry::make('description')
-                    ->label('Keterangan')
-                    ->placeholder('-')
-                    ->columnSpanFull(),
+                    }
+                ),
+                TextEntry::make('status')->badge()->color('success'),
+                TextEntry::make('description')->label('Keterangan')->placeholder('-')->columnSpanFull(),
             ]);
     }
 
@@ -59,36 +49,22 @@ class PermissionResource extends Resource
         return $table
             ->defaultSort('permission_date', 'desc')
             ->columns([
-                TextColumn::make('permission_date')
-                    ->label('Tanggal Izin')
-                    ->dateTime('l, d M Y H:i:s')
-                    ->suffix(' WIB')
-                    ->sortable(),
-                TextColumn::make('employee.fullname')
-                    ->label('Nama Karyawan')
-                    ->searchable(),
-                TextColumn::make('permission_type')
-                    ->label('Jenis Izin')
-                    ->badge()
-                    ->color(fn($state) => match ($state) {
+                TextColumn::make('permission_date')->label('Tanggal Izin')->dateTime('l, d M Y H:i:s')->suffix(' WIB')->sortable(),
+                TextColumn::make('employee.fullname')->label('Nama Karyawan')->searchable(),
+                TextColumn::make('permission_type')->label('Jenis Izin')->badge()->color(
+                    fn($state) => match ($state) {
                         'izin' => 'warning',
                         'sakit' => 'primary',
                         default => 'danger'
-                    })
-                    ->alignCenter()
-                    ->sortable(),
-            ])
-            ->filters([
-                //
+                    }
+                )->alignCenter()->sortable(),
             ])
             ->recordActions([
                 ViewAction::make(),
                 DeleteAction::make(),
             ])
             ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                BulkActionGroup::make([DeleteBulkAction::make()]),
             ]);
     }
 

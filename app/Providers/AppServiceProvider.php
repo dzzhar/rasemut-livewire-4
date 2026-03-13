@@ -5,6 +5,7 @@ namespace App\Providers;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Support\Facades\FilamentTimezone;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        FilamentTimezone::set('Asia/Jakarta');
+
         View::share('menuItems', [
             ['label' => 'Beranda', 'icon' => 'finger-print', 'href' => '/', 'match' => '/',],
             ['label' => 'Perizinan', 'icon' => 'calendar-days', 'href' => 'permission', 'match' => 'permission*',],

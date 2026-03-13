@@ -33,13 +33,8 @@ class PositionResource extends Resource
     {
         return $schema
             ->components([
-                TextInput::make('name')
-                    ->label('Nama Jabatan')
-                    ->required(),
-                Textarea::make('description')
-                    ->label('Keterangan')
-                    ->required()
-                    ->autosize(),
+                TextInput::make('name')->label('Jabatan')->required(),
+                Textarea::make('description')->label('Keterangan')->autosize(),
             ]);
     }
 
@@ -47,10 +42,8 @@ class PositionResource extends Resource
     {
         return $schema
             ->components([
-                TextEntry::make('name')
-                    ->label('Nama Jabatan'),
-                TextEntry::make('description')
-                    ->label('Keterangan'),
+                TextEntry::make('name')->label('Jabatan'),
+                TextEntry::make('description')->label('Keterangan'),
             ]);
     }
 
@@ -58,12 +51,7 @@ class PositionResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')
-                    ->label('Nama Jabatan')
-                    ->searchable(),
-            ])
-            ->filters([
-                //
+                TextColumn::make('name')->label('Nama Jabatan')->searchable(),
             ])
             ->recordActions([
                 ViewAction::make(),
@@ -71,9 +59,7 @@ class PositionResource extends Resource
                 DeleteAction::make(),
             ])
             ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                BulkActionGroup::make([DeleteBulkAction::make()]),
             ]);
     }
 
