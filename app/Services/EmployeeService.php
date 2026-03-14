@@ -57,6 +57,7 @@ class EmployeeService
     {
         DB::transaction(function () use ($employee) {
             $employee->user()->delete();
+            $employee->delete();
         });
     }
 }

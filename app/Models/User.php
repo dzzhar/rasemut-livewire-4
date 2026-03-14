@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable implements FilamentUser, HasName
 {
@@ -40,6 +41,13 @@ class User extends Authenticatable implements FilamentUser, HasName
     public function getFilamentName(): string
     {
         return $this->employee?->fullname ?? $this->email;
+    }
+
+    public function hasActiveSession(): bool
+    {
+        return DB::table('sessions')
+            ->where('user_id', $this->id)
+            ->exists();
     }
 
     public function employee(): HasOne

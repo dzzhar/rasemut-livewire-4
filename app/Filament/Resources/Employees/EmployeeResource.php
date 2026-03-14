@@ -82,7 +82,14 @@ class EmployeeResource extends Resource
             ->columns([
                 TextColumn::make('fullname')->label('Nama Lengkap')->searchable()->sortable(),
                 TextColumn::make('employee_code')->label('Nomor Karyawan')->searchable()->sortable(),
-                ToggleColumn::make('is_active')->label('Aktif'),
+                ToggleColumn::make('is_active')->label('Aktif')
+                    ->disabled(fn($record) => $record->user?->hasActiveSession())
+                    ->tooltip(
+                        fn($record) =>
+                        $record->user?->hasActiveSession()
+                            ? 'User sedang login dan tidak dapat menonaktifkan'
+                            : null
+                    ),
                 TextColumn::make('position.name')->label('Jabatan'),
                 TextColumn::make('user.role')->label('Role')->badge()->formatStateUsing(
                     fn($state) => $state === 'admin' ? 'admin' : 'karyawan'
@@ -100,7 +107,15 @@ class EmployeeResource extends Resource
                         'user_role' => $record->user->role,
                     ])
                     ->using(fn(Employee $record, array $data) => app(EmployeeService::class)->update($record, $data)),
-                DeleteAction::make()->action(fn(Employee $record) => app(EmployeeService::class)->delete($record)),
+                DeleteAction::make()
+                    ->action(fn(Employee $record) => app(EmployeeService::class)->delete($record))
+                    ->disabled(fn($record) => $record->user?->hasActiveSession())
+                    ->tooltip(
+                        fn($record) =>
+                        $record->user?->hasActiveSession()
+                            ? 'User sedang login dan tidak dapat menghapus'
+                            : null
+                    )
             ])
             ->toolbarActions([
                 BulkActionGroup::make([DeleteBulkAction::make()]),
