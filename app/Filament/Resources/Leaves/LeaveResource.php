@@ -34,25 +34,41 @@ class LeaveResource extends Resource
 
     public static function getNavigationBadgeColor(): ?string
     {
-        return static::getModel()::where('status', 'pending')->count() > 0 ? 'warning' : 'primary';
+        return static::getModel()::where('status', 'pending')
+            ->count() > 0 ? 'warning' : 'primary';
     }
 
     public static function getNavigationBadgeTooltip(): ?string
     {
-        return static::getModel()::where('status', 'pending')->count() > 0 ? 'Menunggu persetujuan Anda' : 'Semua telah Anda setujui';
+        return static::getModel()::where('status', 'pending')
+            ->count() > 0 ? 'Menunggu persetujuan Anda' : 'Semua telah Anda setujui';
     }
 
     public static function infolist(Schema $schema): Schema
     {
         return $schema
             ->components([
-                TextEntry::make('request_date')->label('Tanggal Pengajuan')->dateTime('l, d M Y H:s:i')->suffix(' WIB'),
-                TextEntry::make('employee.fullname')->label('Nama Karyawan'),
-                TextEntry::make('leave_code')->label('Kode Cuti'),
-                TextEntry::make('start_date')->label('Tanggal Mulai')->date(),
-                TextEntry::make('end_date')->label('Tanggal Selesai')->date(),
-                TextEntry::make('status')->badge()->color(fn($state) => $state?->filamentBadgeColor()),
-                TextEntry::make('description')->label('Keterangan')->placeholder('-')->columnSpanFull(),
+                TextEntry::make('request_date')
+                    ->label('Tanggal Pengajuan')
+                    ->dateTime('l, d M Y H:s:i')
+                    ->suffix(' WIB'),
+                TextEntry::make('employee.fullname')
+                    ->label('Nama Karyawan'),
+                TextEntry::make('leave_code')
+                    ->label('Kode Cuti'),
+                TextEntry::make('start_date')
+                    ->label('Tanggal Mulai')
+                    ->date(),
+                TextEntry::make('end_date')
+                    ->label('Tanggal Selesai')
+                    ->date(),
+                TextEntry::make('status')
+                    ->badge()
+                    ->color(fn($state) => $state?->filamentBadgeColor()),
+                TextEntry::make('description')
+                    ->label('Keterangan')
+                    ->placeholder('-')
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -60,16 +76,30 @@ class LeaveResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('request_date')->label('Tanggal Pengajuan')->date('l, d F Y')->sortable(),
-                TextColumn::make('employee.fullname')->label('Nama Karyawan')->searchable(),
-                TextColumn::make('leave_code')->label('Kode Cuti')->searchable(),
-                TextColumn::make('start_date')->label('Tanggal Mulai')->date(),
-                TextColumn::make('end_date')->label('Tanggal Selesai')->date(),
-                SelectColumn::make('status')->options([
-                    'pending' => 'Pending',
-                    'disetujui' => 'Disetujui',
-                    'ditolak' => 'Ditolak'
-                ])->native(false)->selectablePlaceholder(false)
+                TextColumn::make('request_date')
+                    ->label('Tanggal Pengajuan')
+                    ->date('l, d F Y')
+                    ->sortable(),
+                TextColumn::make('employee.fullname')
+                    ->label('Nama Karyawan')
+                    ->searchable(),
+                TextColumn::make('leave_code')
+                    ->label('Kode Cuti')
+                    ->searchable(),
+                TextColumn::make('start_date')
+                    ->label('Tanggal Mulai')
+                    ->date(),
+                TextColumn::make('end_date')
+                    ->label('Tanggal Selesai')
+                    ->date(),
+                SelectColumn::make('status')
+                    ->options([
+                        'pending' => 'Pending',
+                        'disetujui' => 'Disetujui',
+                        'ditolak' => 'Ditolak'
+                    ])
+                    ->native(false)
+                    ->selectablePlaceholder(false)
             ])
             ->recordActions([
                 ViewAction::make(),

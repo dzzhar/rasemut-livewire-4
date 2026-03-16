@@ -42,9 +42,12 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->employee?->fullname ?? $this->email;
     }
-
     public function hasActiveSession(): bool
     {
+        if ($this->role !== 'admin') {
+            return false;
+        }
+
         return DB::table('sessions')
             ->where('user_id', $this->id)
             ->exists();

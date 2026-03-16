@@ -30,15 +30,24 @@ class AttendanceResource extends Resource
     {
         return $schema
             ->components([
-                TextEntry::make('employee.fullname')->label('Nama Karyawan'),
-                TextEntry::make('attendance_date')->label('Tanggal Presensi')->dateTime()->suffix(' WIB'),
-                TextEntry::make('attendance_type')->label('Presensi')->badge()->prefix('Check ')->color(
-                    fn($state) => $state === 'in' ? 'success' : 'danger'
-                ),
-                TextEntry::make('status')->badge()->color(
-                    fn($state) => $state->filamentBadgeColor()
-                ),
-                TextEntry::make('description')->label('Keterangan')->placeholder('-')->columnSpanFull(),
+                TextEntry::make('employee.fullname')
+                    ->label('Nama Karyawan'),
+                TextEntry::make('attendance_date')
+                    ->label('Tanggal Presensi')
+                    ->dateTime()
+                    ->suffix(' WIB'),
+                TextEntry::make('attendance_type')
+                    ->label('Presensi')
+                    ->badge()
+                    ->prefix('Check ')
+                    ->color(fn($state) => $state === 'in' ? 'success' : 'danger'),
+                TextEntry::make('status')
+                    ->badge()
+                    ->color(fn($state) => $state->filamentBadgeColor()),
+                TextEntry::make('description')
+                    ->label('Keterangan')
+                    ->placeholder('-')
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -47,14 +56,26 @@ class AttendanceResource extends Resource
         return $table
             ->defaultSort('attendance_date', 'desc')
             ->columns([
-                TextColumn::make('attendance_date')->label('Tanggal Presensi')->dateTime('l, d M Y H:i:s')->suffix(' WIB')->sortable(),
-                TextColumn::make('employee.fullname')->label('Nama Karyawan')->searchable(),
-                TextColumn::make('attendance_type')->label('Presensi')->badge()->color(
-                    fn($state) => $state === 'in' ? 'success' : 'danger'
-                )->prefix('Check ')->alignCenter()->sortable(),
-                TextColumn::make('status')->badge()->color(
-                    fn($state) => $state?->filamentBadgeColor()
-                )->alignCenter()->sortable(),
+                TextColumn::make('attendance_date')
+                    ->label('Tanggal Presensi')
+                    ->dateTime('l, d M Y H:i:s')
+                    ->suffix(' WIB')
+                    ->sortable(),
+                TextColumn::make('employee.fullname')
+                    ->label('Nama Karyawan')
+                    ->searchable(),
+                TextColumn::make('attendance_type')
+                    ->label('Presensi')
+                    ->badge()
+                    ->color(fn($state) => $state === 'in' ? 'success' : 'danger')
+                    ->prefix('Check ')
+                    ->alignCenter()
+                    ->sortable(),
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(fn($state) => $state?->filamentBadgeColor())
+                    ->alignCenter()
+                    ->sortable(),
             ])
             ->recordActions([
                 ViewAction::make(),
