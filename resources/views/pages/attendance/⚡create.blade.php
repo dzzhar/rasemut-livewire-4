@@ -1,6 +1,7 @@
 <?php
 
 use App\Services\AttendanceService;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 new class extends Component {
@@ -40,8 +41,8 @@ new class extends Component {
     public function absensiButton()
     {
         $service = new AttendanceService($this->employeeId);
-        $service->handleAttendance();
-        $this->dispatch('show-feedback', title: 'Presensi Berhasil', message: 'Presensi Anda berhasil dicatat.');
+        $result = $service->handleAttendance();
+        $this->dispatch('show-feedback', title: $result['title'], message: $result['message'], type: $result['type']);
 
         $this->refreshState($service);
         $this->dispatch('refresh-history');

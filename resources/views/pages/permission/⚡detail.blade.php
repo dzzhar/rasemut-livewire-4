@@ -42,7 +42,7 @@ new class extends Component {
             </div>
             <div>
                 <flux:heading>Keterangan</flux:heading>
-                <flux:text class="mt-2 whitespace-normal wrap-break-word capitalize">
+                <flux:text class="mt-2 whitespace-normal wrap-break-word first-letter:uppercase">
                     {{ $selected->description ?? '-' }}
                 </flux:text>
             </div>

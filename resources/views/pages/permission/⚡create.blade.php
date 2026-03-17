@@ -4,6 +4,7 @@ use App\Models\Permission;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Validate;
+use App\Services\CheckerService;
 use Livewire\Component;
 
 new class extends Component {
@@ -33,27 +34,38 @@ new class extends Component {
     {
         $this->validate();
 
-        $employee = Auth::user()?->employee;
+        $employee = Auth::user()?->employee->id;
+        $checker = app(CheckerService::class)->setEmployee($employee);
 
-        // cek apakah telah izin hari ini
-        $alreadyExists = Permission::whereBelongsTo($employee)->whereDate('permission_date', today())->exists();
+        // cek apakah telah mengajukan izin hari ini
+        if ($checker->hasPermissionToday(now())) {
+            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Izin', message: 'Anda telah mengajukan izin hari ini. Jika terjadi kesalahan, silakan hubungi Admin.', type: 'danger');
+            return;
+        }
 
-        if ($alreadyExists) {
-            $this->dispatch('show-feedback', title: 'Izin Sudah Diajukan', message: 'Anda sudah mengajukan izin untuk hari ini. Apabila terjadi kesalahan, silakan hubungi Operator.', type: 'warning');
+        // cek apakah ada cuti di periode ini
+        if ($checker->hasLeaveToday(now())) {
+            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Izin', message: 'Anda sedang dalam periode cuti hari ini, sehingga tidak dapat melakukan presensi.', type: 'warning');
+            return;
+        }
+
+        // cek apakah telah melakukan presensi hari ini
+        if ($checker->hasAttendanceToday(now())) {
+            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Izin', message: 'Anda telah melakukan presensi hari ini, sehingga tidak dapat mengajukan izin.', type: 'warning');
             return;
         }
 
         // jika belum izin hari ini
         DB::transaction(function () use ($employee) {
             Permission::create([
-                'employee_id' => $employee->id,
+                'employee_id' => $employee,
                 'permission_date' => now(),
                 'permission_type' => $this->permission_type,
                 'description' => $this->description,
             ]);
         });
 
-        $this->dispatch('show-feedback', title: 'Izin Berhasil Diajukan', message: 'Izin Anda hari ini telah berhasil diajukan.');
+        $this->dispatch('show-feedback', title: 'Izin Diajukan!', message: 'Pengajuan izin Anda hari ini berhasil dilakukan.');
 
         $this->reset();
         $this->dispatch('refresh-history');

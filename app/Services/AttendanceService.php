@@ -11,11 +11,13 @@ class AttendanceService
 {
     protected int $employeeId;
     protected AttendanceSetting $setting;
+    protected CheckerService $checker;
 
     public function __construct(int $employeeId)
     {
         $this->employeeId = $employeeId;
         $this->setting = AttendanceSetting::firstOrFail();
+        $this->checker = app(CheckerService::class)->setEmployee($employeeId);
     }
 
     // untuk mendapatkan status presensi hari ini
@@ -24,18 +26,31 @@ class AttendanceService
         return $this->getAttendanceByDate(now());
     }
 
-    // untuk absensi masuk dan pulang sekaligus
-    public function handleAttendance(): void
+    // handle presensi utama
+    public function handleAttendance(): array
     {
-        DB::transaction(function () {
+        return DB::transaction(function () {
             $now = now();
 
             // kalo misal belum absen kemarin, maka otomatis dianggap tidak absen
             $this->handleYesterday();
 
-            // kalo bukan hari kerja → stop
-            if (!$this->isWorkingDay($now)) {
-                return;
+            // cek cuti hari ini
+            if ($this->checker->hasLeaveToday($now)) {
+                return [
+                    'title' => 'Presensi Gagal',
+                    'message' => 'Anda sedang dalam periode cuti hari ini, sehingga tidak dapat melakukan presensi.',
+                    'type' => 'warning',
+                ];
+            }
+
+            // cek izin hari ini
+            if ($this->checker->hasPermissionToday($now)) {
+                return [
+                    'title' => 'Presensi Gagal',
+                    'message' => 'Anda telah mengajukan izin hari ini, sehingga tidak dapat melakukan presensi.',
+                    'type' => 'warning',
+                ];
             }
 
             // cek presensi hari ini
@@ -46,6 +61,12 @@ class AttendanceService
             } elseif (!$today['out']) {
                 $this->doCheckOut($now);
             }
+
+            return [
+                'title' => 'Presensi Berhasil!',
+                'message' => 'Presensi Anda hari ini berhasil dilakukan.',
+                'type' => 'success',
+            ];
         });
     }
 
@@ -136,18 +157,18 @@ class AttendanceService
             Attendance::create([
                 'employee_id' => $this->employeeId,
                 'attendance_date' => $yesterday,
-                'attendance_type' => 'in',
+                'attendance_type' => 'out',
                 'status' => 'tidak absen',
-                'description' => 'Tidak melakukan presensi masuk'
+                'description' => 'Tidak melakukan presensi pulang'
             ]);
 
             // simpan data presensi pulang dengan status tidak absen
             Attendance::create([
                 'employee_id' => $this->employeeId,
                 'attendance_date' => $yesterday,
-                'attendance_type' => 'out',
+                'attendance_type' => 'in',
                 'status' => 'tidak absen',
-                'description' => 'Tidak melakukan presensi pulang'
+                'description' => 'Tidak melakukan presensi masuk'
             ]);
         }
 
@@ -175,6 +196,7 @@ class AttendanceService
     {
         $data = Attendance::where('employee_id', $this->employeeId)
             ->whereDate('attendance_date', $date)
+            ->orderByRaw("FIELD(attendance_type, 'out', 'in')")
             ->get()
             ->keyBy('attendance_type');
 

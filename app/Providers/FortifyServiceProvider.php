@@ -26,10 +26,8 @@ class FortifyServiceProvider extends ServiceProvider
             return new class implements LoginResponse {
                 public function toResponse($request)
                 {
-                    $user = $request->user();
-
                     return redirect()->to(
-                        match ($user->role) {
+                        match ($request->user()->role) {
                             'admin' => '/admin',
                             'employee' => '/',
                             default => '/login',
@@ -64,7 +62,7 @@ class FortifyServiceProvider extends ServiceProvider
 
             if (!Hash::check($request->password, $user->password)) {
                 throw ValidationException::withMessages([
-                    'password' => 'Password yang Anda masukkan salah.',
+                    'password' => 'Kata sandi yang dimasukkan salah.',
                 ]);
             }
 
@@ -84,7 +82,7 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         Fortify::loginView(function () {
-            return view('pages.auth.⚡login');
+            return route('login');
         });
     }
 }

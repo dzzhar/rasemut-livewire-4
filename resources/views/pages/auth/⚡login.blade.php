@@ -8,7 +8,7 @@ new #[Layout('layouts::auth')] class extends Component {
 };
 ?>
 
-<div class="flex min-h-screen ">
+<div class="flex min-h-screen">
     <div class="flex-1 flex justify-center items-center">
         <div class="w-96 max-w-96 space-y-6">
             <div class="flex justify-center opacity-50">
@@ -21,7 +21,7 @@ new #[Layout('layouts::auth')] class extends Component {
 
             <flux:heading class="text-center" size="xl">Masuk ke Akun Anda</flux:heading>
 
-            <div class="space-y-4">
+            {{-- <div class="space-y-4">
                 <flux:button class="w-full">
                     <x-slot name="icon">
                         <svg width="25" height="24" viewBox="0 0 25 24" fill="none"
@@ -42,9 +42,9 @@ new #[Layout('layouts::auth')] class extends Component {
 
                     Continue with Google
                 </flux:button>
-            </div>
+            </div> --}}
 
-            <flux:separator text="or" />
+            <flux:separator />
 
             <form method="POST" action="{{ route('login') }}" class="flex flex-col gap-6">
                 @csrf

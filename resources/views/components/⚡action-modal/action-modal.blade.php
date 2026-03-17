@@ -9,7 +9,7 @@
                 'text-yellow-700 bg-yellow-400/20 dark:text-yellow-200 dark:bg-yellow-400/40' =>
                     $type === 'warning',
                 'text-red-700 bg-red-400/20 dark:text-red-200 dark:bg-red-400/40' =>
-                    $type === 'error',
+                    $type === 'danger',
             ]) />
 
         <div class="text-center">

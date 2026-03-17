@@ -45,7 +45,7 @@
                         </flux:text>
 
                         <flux:text class="text-zinc-500 dark:text-zinc-400 text-sm hidden md:block truncate">
-                            Keterangan: {{ $item->description ?? '-' }}
+                            Keterangan: {{ ucfirst($item->description ?? '-') }}
                         </flux:text>
                     </div>
 

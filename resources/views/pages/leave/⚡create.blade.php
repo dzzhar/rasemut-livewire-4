@@ -3,6 +3,7 @@
 use App\Models\Leave;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Services\CheckerService;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Carbon\Carbon;
@@ -21,33 +22,40 @@ new class extends Component {
     {
         $this->validate();
 
-        $employee = Auth::user()?->employee;
+        $employee = Auth::user()?->employee->id;
+        $checker = app(CheckerService::class)->setEmployee($employee);
 
-        // cek apakah cuti sudah dibooking
-        $alreadyExists = Leave::whereBelongsTo($employee)
-            ->where(function ($query) {
-                $query->where('start_date', '<=', $this->end_date)->where('end_date', '>=', $this->start_date);
-            })
-            ->exists();
+        // cek apakah ada cuti di periode ini
+        if ($checker->hasLeaveToday(now())) {
+            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda sedang dalam periode cuti, sehingga tidak dapat mengajukan cuti.', type: 'warning');
+            return;
+        }
 
-        if ($alreadyExists) {
-            $this->dispatch('show-feedback', title: 'Cuti Sudah Diajukan', message: 'Cuti sudah pernah Anda ajukan pada periode ini. Silakan tunggu konfirmasi dari Operator.', type: 'warning');
+        // cek apakah telah melakukan izin hari ini
+        if ($checker->hasPermissionToday(now())) {
+            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda telah mengajukan izin hari ini. Jika terjadi kesalahan, silakan hubungi Admin.', type: 'danger');
+            return;
+        }
+
+        // cek apakah telah melakukan presensi hari ini
+        if ($checker->hasAttendanceToday(now())) {
+            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda telah melakukan presensi hari ini, sehingga tidak dapat mengajukan cuti.', type: 'warning');
             return;
         }
 
         // jika belum, simpan
         DB::transaction(function () use ($employee) {
             Leave::create([
-                'employee_id' => $employee->id,
+                'employee_id' => $employee,
                 'request_date' => now(),
-                'leave_code' => 'Cuti ' . '#' . now()->format('dMyHis'),
+                'leave_code' => 'Cuti #' . now()->format('dMyHis'),
                 'start_date' => $this->start_date,
                 'end_date' => $this->end_date,
                 'description' => $this->description,
             ]);
         });
 
-        $this->dispatch('show-feedback', title: 'Cuti Diajukan!', message: 'Pengajuan cuti Anda berhasil diajukan. Silakan tunggu konfirmasi dari Operator.');
+        $this->dispatch('show-feedback', title: 'Cuti Diajukan!', message: 'Pengajuan cuti Anda berhasil dilakukan. Silakan menunggu konfirmasi dari Admin.');
 
         $this->reset();
         $this->dispatch('refresh-history');
