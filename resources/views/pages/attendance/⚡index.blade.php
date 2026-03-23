@@ -23,7 +23,7 @@ new class extends Component {
         {{ $this->greeting . ', ' . ucfirst(Str::before(auth()->user()->employee?->fullname, ' ')) }} 👋
     </flux:heading>
 
-    <flux:separator variant="subtle" class="my-8" />
+    {{-- <flux:separator variant="subtle" class="my-8" /> --}}
 
     <livewire:pages::attendance.create />
     <livewire:history-card headerTitle="Riwayat Presensi" model="\App\Models\Attendance" dateColumn="attendance_date"

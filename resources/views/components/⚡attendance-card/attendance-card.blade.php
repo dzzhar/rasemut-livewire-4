@@ -8,7 +8,7 @@
         </flux:badge>
 
         <div>
-            <flux:text>{{ $title }}</flux:text>
+            <flux:text class="font-medium">{{ $title }}</flux:text>
             <flux:heading size="xl" level="1" class="mt-1 font-semibold">
                 {{ filled($time) ? "$time WIB" : '--:--:--' }}
             </flux:heading>
