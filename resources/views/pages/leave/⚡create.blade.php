@@ -26,19 +26,19 @@ new class extends Component {
         $checker = app(CheckerService::class)->setEmployee($employee);
 
         // cek apakah ada cuti di periode ini
-        if ($checker->hasLeaveToday(now())) {
-            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda sedang dalam periode cuti, sehingga tidak dapat mengajukan cuti.', type: 'warning');
+        if ($checker->hasLeaveInRange($this->start_date, $this->end_date)) {
+            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda sudah atau sedang mengajukan cuti pada periode ini, sehingga tidak dapat mengajukan cuti.', type: 'warning');
             return;
         }
 
         // cek apakah telah melakukan izin hari ini
-        if ($checker->hasPermissionToday(now())) {
+        if ($checker->hasPermissionInRange($this->start_date, $this->end_date)) {
             $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda telah mengajukan izin hari ini. Jika terjadi kesalahan, silakan hubungi Admin.', type: 'danger');
             return;
         }
 
         // cek apakah telah melakukan presensi hari ini
-        if ($checker->hasAttendanceToday(now())) {
+        if ($checker->hasAttendanceInRange($this->start_date, $this->end_date)) {
             $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda telah melakukan presensi hari ini, sehingga tidak dapat mengajukan cuti.', type: 'warning');
             return;
         }

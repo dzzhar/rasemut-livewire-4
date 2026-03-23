@@ -88,7 +88,7 @@ new #[Title('Pengaturan')] class extends Component {
                 <flux:input label="Kata Sandi Saat Ini" wire:model="current_password" type="password" placeholder="********"
                     viewable />
                 <flux:input label="Kata Sandi Baru" wire:model="password" type="password"
-                    description="Kata sandi harus mengandung minimal satu huruf, kombinasi huruf besar & kecil, satu angka, dan satu simbol."
+                    description="Minimal 8 karakter dan mengandung setidaknya satu huruf besar, satu huruf kecil, satu angka, serta satu simbol."
                     placeholder="********" viewable />
                 <flux:input label="Konfirmasi Kata Sandi Baru" wire:model="password_confirmation" type="password"
                     placeholder="********" viewable />
