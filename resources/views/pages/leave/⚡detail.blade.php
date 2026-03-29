@@ -42,8 +42,8 @@ new class extends Component {
             <div>
                 <flux:heading>Periode Cuti</flux:heading>
                 <flux:text class="mt-2">
-                    {{ $selected->start_date->translatedFormat('l, d M Y') }} -
-                    {{ $selected->end_date->translatedFormat('l, d M Y') }}
+                    {{ $selected->start_date->translatedFormat('d M Y') }} -
+                    {{ $selected->end_date->translatedFormat('d M Y') }}
                 </flux:text>
 
             </div>

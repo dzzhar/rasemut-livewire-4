@@ -8,12 +8,12 @@ enum LeaveStatus: string
     case Disetujui = 'disetujui';
     case Ditolak = 'ditolak';
 
-    public function label(): string
+    public function badgeLabel(): string
     {
         return match ($this) {
-            self::Pending => 'Pending',
-            self::Disetujui => 'Disetujui',
-            self::Ditolak => 'Ditolak',
+            self::Pending => 'pending',
+            self::Disetujui => 'disetujui',
+            self::Ditolak => 'ditolak',
         };
     }
 

@@ -22,9 +22,10 @@ class Leave extends Model
         'employee_id',
     ];
     protected $casts = [
-        'request_date' => 'datetime',
-        'start_date' => 'datetime',
-        'end_date' => 'datetime',
+        'request_date' => 'date',
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'first_status_updated_at' => 'datetime',
         'status' => LeaveStatus::class
     ];
 

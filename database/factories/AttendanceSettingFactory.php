@@ -20,6 +20,7 @@ class AttendanceSettingFactory extends Factory
             'check_in_setting' => $absensiMasuk,
             'check_out_setting' => $absensiKeluar,
             'overtime_tolerance' => $this->faker->numberBetween(0, 60),
+            'leave_quota' => '10',
             'latitude' => $latitude,
             'longitude' => $longitude,
             'radius_attendance' => $this->faker->numberBetween(50, 500),

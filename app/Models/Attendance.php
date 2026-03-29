@@ -14,19 +14,25 @@ class Attendance extends Model
     protected $table = 'attendances';
     protected $fillable = [
         'attendance_date',
-        'attendance_type',
+        'check_in',
+        'check_out',
+        'late_minutes',
+        'overtime_minutes',
+        'early_leave_minutes',
         'status',
         'description',
         'employee_id'
     ];
     protected $casts = [
-        'attendance_date' => 'datetime',
+        'attendance_date' => 'date',
         'status' => AttendanceStatus::class
     ];
 
     public function getHistoryTypeAttribute()
     {
-        return "Check " . $this->attendance_type;
+        return $this->check_out !== null
+            ? 'Presensi Pulang'
+            : 'Presensi Masuk';
     }
 
     public function getHistoryDateAttribute()

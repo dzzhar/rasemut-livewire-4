@@ -34,20 +34,22 @@ class AttendanceResource extends Resource
                     ->label('Nama Karyawan'),
                 TextEntry::make('attendance_date')
                     ->label('Tanggal Presensi')
-                    ->dateTime()
+                    ->date('l, d F Y'),
+                TextEntry::make('check_in')
+                    ->label('Jam Masuk')
+                    ->placeholder('-')
                     ->suffix(' WIB'),
-                TextEntry::make('attendance_type')
-                    ->label('Presensi')
-                    ->badge()
-                    ->prefix('Check ')
-                    ->color(fn($state) => $state === 'in' ? 'success' : 'danger'),
+                TextEntry::make('check_out')
+                    ->label('Jam Keluar')
+                    ->placeholder('-')
+                    ->suffix(' WIB'),
                 TextEntry::make('status')
                     ->badge()
+                    ->formatStateUsing(fn($state) => $state->badgeLabel())
                     ->color(fn($state) => $state->filamentBadgeColor()),
                 TextEntry::make('description')
                     ->label('Keterangan')
-                    ->placeholder('-')
-                    ->columnSpanFull(),
+                    ->placeholder('-'),
             ]);
     }
 
@@ -58,21 +60,22 @@ class AttendanceResource extends Resource
             ->columns([
                 TextColumn::make('attendance_date')
                     ->label('Tanggal Presensi')
-                    ->dateTime('l, d M Y H:i:s')
-                    ->suffix(' WIB')
+                    ->date('l, d F Y')
                     ->sortable(),
                 TextColumn::make('employee.fullname')
                     ->label('Nama Karyawan')
                     ->searchable(),
-                TextColumn::make('attendance_type')
-                    ->label('Presensi')
-                    ->badge()
-                    ->color(fn($state) => $state === 'in' ? 'success' : 'danger')
-                    ->prefix('Check ')
-                    ->alignCenter()
-                    ->sortable(),
+                TextColumn::make('check_in')
+                    ->label('Jam Masuk')
+                    ->suffix(' WIB')
+                    ->placeholder('-'),
+                TextColumn::make('check_out')
+                    ->label('Jam Keluar')
+                    ->suffix(' WIB')
+                    ->placeholder('-'),
                 TextColumn::make('status')
                     ->badge()
+                    ->formatStateUsing(fn($state) => $state?->badgeLabel())
                     ->color(fn($state) => $state?->filamentBadgeColor())
                     ->alignCenter()
                     ->sortable(),

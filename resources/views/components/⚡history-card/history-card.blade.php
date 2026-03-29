@@ -41,7 +41,7 @@
                 <div class="flex items-end justify-between mt-0 md:mt-2 gap-10">
                     <div class="min-w-0">
                         <flux:text class="text-zinc-900 dark:text-zinc-100 font-medium">
-                            {{ $item->history_date ? $item->history_date->translatedFormat('l, d F Y • H:i:s') . ' WIB' : '-' }}
+                            {{ $item->history_date ? $item->history_date->translatedFormat('l, d F Y') : '-' }}
                         </flux:text>
 
                         <flux:text class="text-zinc-500 dark:text-zinc-400 text-sm hidden md:block truncate">
@@ -52,7 +52,7 @@
                     <div class="hidden md:block">
                         <flux:badge rounded size="sm"
                             color="{{ $item->status instanceof \UnitEnum ? $item->status->badgeColor() : 'green' }}">
-                            {{ $item->status }}
+                            {{ $item->status instanceof \UnitEnum ? $item->status->badgeLabel() : $item->status }}
                         </flux:badge>
                     </div>
                 </div>

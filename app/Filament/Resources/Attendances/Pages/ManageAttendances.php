@@ -41,12 +41,9 @@ class ManageAttendances extends ManageRecords
                     DatePicker::make('start_period')->label('Periode Awal'),
                     DatePicker::make('end_period')->label('Periode Akhir'),
                     Select::make('status')->label('Status Presensi')->options([
-                        'tepat waktu' => 'Tepat Waktu',
-                        'terlambat' => 'Terlambat',
-                        'akhir shift' => 'Akhir Shift',
-                        'pulang cepat' => 'Pulang Cepat',
-                        'lembur' => 'Lembur',
-                        'tidak absen' => 'Tidak Absen',
+                        'hadir' => 'Hadir',
+                        'tidak hadir' => 'Tidak Hadir',
+                        'tidak lengkap' => 'Tidak Lengkap',
                     ])
                 ])
         ];

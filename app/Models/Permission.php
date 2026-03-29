@@ -14,12 +14,13 @@ class Permission extends Model
     protected $fillable = [
         'permission_date',
         'permission_type',
+        'file_path',
         'status',
         'description',
         'employee_id'
     ];
     protected $casts = [
-        'permission_date' => 'datetime',
+        'permission_date' => 'date',
     ];
 
     public function getHistoryTypeAttribute()

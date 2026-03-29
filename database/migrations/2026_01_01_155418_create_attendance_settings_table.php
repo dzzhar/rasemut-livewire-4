@@ -12,8 +12,9 @@ return new class extends Migration
             $table->id();
             $table->time('check_in_setting');
             $table->time('check_out_setting');
-            $table->unsignedInteger('overtime_tolerance');
-            $table->double('latitude')->nullTable();
+            $table->integer('leave_quota');
+            $table->integer('overtime_tolerance');
+            $table->double('latitude')->nullable();
             $table->double('longitude')->nullable();
             $table->unsignedInteger('radius_attendance');
             $table->timestamps();

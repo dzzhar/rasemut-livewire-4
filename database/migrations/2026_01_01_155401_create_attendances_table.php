@@ -10,10 +10,15 @@ return new class extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->timestamp('attendance_date')->index();
-            $table->enum('attendance_type', ['in', 'out']);
-            $table->enum('status', ['tepat waktu', 'terlambat', 'akhir shift', 'pulang cepat', 'lembur', 'tidak absen']);
+            $table->date('attendance_date')->index();
+            $table->time('check_in')->nullable();
+            $table->time('check_out')->nullable();
+            $table->integer('late_minutes')->default(0);
+            $table->integer('overtime_minutes')->default(0);
+            $table->integer('early_leave_minutes')->default(0);
+            $table->enum('status', ['hadir', 'tidak_hadir', 'tidak_lengkap']);
             $table->text('description')->nullable();
+            $table->unique(['employee_id', 'attendance_date']);
             $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();
             $table->timestamps();
         });

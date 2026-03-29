@@ -33,7 +33,7 @@ new #[Title('Pengaturan')] class extends Component {
 
         $this->resetErrorBag();
         $this->resetValidation();
-        $this->redirect(request()->header('Referer'), navigate: true);
+        // $this->redirect(request()->header('Referer'), navigate: true);
     }
 
     public function updatePassword(UpdateUserPassword $updater)

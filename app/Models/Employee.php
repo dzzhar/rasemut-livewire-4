@@ -16,6 +16,7 @@ class Employee extends Model
         'fullname',
         'employee_code',
         'is_active',
+        'leave_remaining',
         'user_id',
         'position_id',
     ];

@@ -15,7 +15,7 @@ new class extends Component {
             return collect();
         }
 
-        $this->selected = Permission::select('id', 'permission_date', 'permission_type', 'status', 'description')->whereBelongsTo($employee)->find($id);
+        $this->selected = Permission::select('id', 'permission_date', 'permission_type', 'file_path', 'status', 'description')->whereBelongsTo($employee)->find($id);
 
         if ($this->selected) {
             $this->modal('detail-modal-permission')->show();
@@ -37,7 +37,7 @@ new class extends Component {
             <div>
                 <flux:heading>Tanggal Izin</flux:heading>
                 <flux:text class="mt-2">
-                    {{ $selected->history_date ? $selected->history_date->translatedFormat('l, d F Y • H:i:s') . ' WIB' : '-' }}
+                    {{ $selected->history_date ? $selected->history_date->translatedFormat('l, d F Y') : '-' }}
                 </flux:text>
             </div>
             <div>
@@ -49,6 +49,13 @@ new class extends Component {
             <div>
                 <flux:heading>Status</flux:heading>
                 <flux:badge rounded size="sm" color="green" class="mt-2">{{ $selected->status }}</flux:badge>
+            </div>
+            <div>
+                <flux:text class="mt-2" color="blue">
+                    <flux:link href="{{ asset('storage/' . $selected->file_path) }}" target="_blank" variant="ghost">
+                        Unduh Bukti Izin/Sakit
+                    </flux:link>
+                </flux:text>
             </div>
         @endif
 

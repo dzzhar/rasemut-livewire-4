@@ -15,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Storage;
 use UnitEnum;
 
 class PermissionResource extends Resource
@@ -32,12 +33,11 @@ class PermissionResource extends Resource
             ->components([
                 TextEntry::make('permission_date')
                     ->label('Tanggal Izin')
-                    ->dateTime('l, d M Y H:i:s')
-                    ->suffix(' WIB'),
+                    ->dateTime('l, d F Y'),
                 TextEntry::make('employee.fullname')
                     ->label('Nama Karyawan'),
                 TextEntry::make('permission_type')
-                    ->label('Jenis')
+                    ->label('Jenis Izin')
                     ->badge()
                     ->color(
                         fn($state) => match ($state) {
@@ -51,8 +51,18 @@ class PermissionResource extends Resource
                     ->color('success'),
                 TextEntry::make('description')
                     ->label('Keterangan')
+                    ->placeholder('-'),
+                TextEntry::make('file_path')
+                    ->label('Bukti Izin/Sakit')
+                    ->formatStateUsing(fn($state) => $state ? 'Lihat Bukti' : '-')
+                    ->color('primary')
+                    ->iconColor('primary')
                     ->placeholder('-')
-                    ->columnSpanFull(),
+                    ->url(fn($record) => $record->file_path
+                        ? asset('storage/' . $record->file_path)
+                        : null)
+                    ->openUrlInNewTab()
+                    ->icon(Heroicon::ArrowTopRightOnSquare)
             ]);
     }
 
@@ -63,8 +73,7 @@ class PermissionResource extends Resource
             ->columns([
                 TextColumn::make('permission_date')
                     ->label('Tanggal Izin')
-                    ->dateTime('l, d M Y H:i:s')
-                    ->suffix(' WIB')
+                    ->dateTime('l, d F Y')
                     ->sortable(),
                 TextColumn::make('employee.fullname')
                     ->label('Nama Karyawan')
@@ -84,10 +93,26 @@ class PermissionResource extends Resource
             ])
             ->recordActions([
                 ViewAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->before(function ($record) {
+                        if ($record->file_path) {
+                            Storage::disk('public')->delete($record->file_path);
+                        }
+                    }),
             ])
             ->toolbarActions([
-                BulkActionGroup::make([DeleteBulkAction::make()]),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
+                        ->before(
+                            function ($records) {
+                                foreach ($records as $record) {
+                                    if ($record->file_path) {
+                                        Storage::disk('public')->delete($record->file_path);
+                                    }
+                                }
+                            }
+                        ),
+                ]),
             ]);
     }
 

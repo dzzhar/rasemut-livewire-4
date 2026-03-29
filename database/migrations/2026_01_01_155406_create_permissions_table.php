@@ -10,8 +10,9 @@ return new class extends Migration
     {
         Schema::create('permissions', function (Blueprint $table) {
             $table->id();
-            $table->timestamp('permission_date')->index();
-            $table->enum('permission_type', ['izin', 'sakit', 'lainnya']);
+            $table->date('permission_date')->index();
+            $table->string('permission_type');
+            $table->string('file_path')->nullable();
             $table->string('status')->default('diterima');
             $table->text('description')->nullable();
             $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();

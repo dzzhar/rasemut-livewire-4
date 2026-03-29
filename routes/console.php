@@ -1,12 +1,16 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+Schedule::command('session:prune')->daily(); // session
+Schedule::command('model:prune')->daily();
+Schedule::command('app:reset-leave-quota') // reset leave quota every year
+    ->yearlyOn(1, 1, '00:00')
+    ->timezone('Asia/Jakarta');
 
-// delete all expired sessions
-Schedule::command('session:prune')->daily();
+Schedule::command('app:update-attendance-status') // update attendance status every day
+    ->weekdays()
+    ->dailyAt('23:59')
+    ->timezone('Asia/Jakarta');
+
+// jalankan: php artisan schedule:work

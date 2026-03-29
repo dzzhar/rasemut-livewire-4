@@ -3,11 +3,14 @@
 use App\Services\AttendanceService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Carbon\Carbon;
+use App\Models\Attendance;
 
 new class extends Component {
-    public $check_in;
-    public $check_out;
-    public $button;
+    public ?string $check_in = null;
+    public ?string $check_out = null;
+    public ?array $button = null;
+    public ?Attendance $todayAttendance = null;
     public int $employeeId;
     public bool $isWorkingDay = true;
 
@@ -21,9 +24,9 @@ new class extends Component {
 
     protected function refreshState(AttendanceService $service)
     {
-        $today = $service->getTodayState();
-        $this->check_in = $today['in'];
-        $this->check_out = $today['out'];
+        $this->todayAttendance = $service->getToday();
+        $this->check_in = $this->todayAttendance?->check_in;
+        $this->check_out = $this->todayAttendance?->check_out;
         $this->setButtonStatus();
     }
 
@@ -41,9 +44,10 @@ new class extends Component {
     public function absensiButton()
     {
         $service = new AttendanceService($this->employeeId);
+        $this->todayAttendance = $service->getToday();
         $result = $service->handleAttendance();
-        $this->dispatch('show-feedback', title: $result['title'], message: $result['message'], type: $result['type']);
 
+        $this->dispatch('show-feedback', title: $result['title'], message: $result['message'], type: $result['type']);
         $this->refreshState($service);
         $this->dispatch('refresh-history');
     }
@@ -52,17 +56,17 @@ new class extends Component {
 
 
 <div>
-
     @if ($isWorkingDay)
         <flux:card size="md" class="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-white dark:bg-zinc-900">
-            <livewire:attendance-card title="Check In" :time="$check_in?->attendance_date?->format('H:i:s')" :status="$check_in?->status" :key="'in-' . $check_in?->id" />
-            <livewire:attendance-card title="Check Out" :time="$check_out?->attendance_date?->format('H:i:s')" :status="$check_out?->status" :key="'out-' . $check_out?->id" />
+
+            <livewire:attendance-card title="Check In" :time="$check_in" :key="'in-' . ($check_in ?? '0')" />
+            <livewire:attendance-card title="Check Out" :time="$check_out" :key="'out-' . ($check_out ?? '0')" />
 
             <flux:button variant="primary" :color="$button['color'] ?? ''"
                 class="w-full lg:col-span-2 {{ !$button ? 'hidden!' : '' }}" wire:click="absensiButton">
                 {{ $button['label'] ?? '' }}
             </flux:button>
+
         </flux:card>
     @endif
-
 </div>

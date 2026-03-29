@@ -32,35 +32,35 @@ class ManageEmployees extends ManageRecords
                     // retrieve the period filter from the form (default this month)
                     $start = $data['start_period'] ?? now()->startOfMonth()->toDateString();
                     $end = $data['end_period'] ?? now()->endOfMonth()->toDateString();
+                    $totalDays = \Carbon\Carbon::parse($start)->diffInDays(\Carbon\Carbon::parse($end)) + 1;
 
                     return $query
                         ->withCount([
                             // count the attendances for each employee by status
-                            'attendances as ontime_count' => fn($q) => $q
-                                ->where('status', 'tepat waktu')
-
+                            'attendances as present_count' => fn($q) => $q
+                                ->where('status', 'hadir')
                                 // will be executed if start and end field are not null
                                 // filter by attendance_date column
                                 ->when($start, fn($q) => $q->whereDate('attendance_date', '>=', $start))
                                 ->when($end, fn($q) => $q->whereDate('attendance_date', '<=', $end)),
                             'attendances as late_count' => fn($q) => $q
-                                ->where('status', 'terlambat')
-                                ->when($start, fn($q) => $q->whereDate('attendance_date', '>=', $start))
-                                ->when($end, fn($q) => $q->whereDate('attendance_date', '<=', $end)),
-                            'attendances as shiftend_count' => fn($q) => $q
-                                ->where('status', 'akhir shift')
+                                ->where('late_minutes', '>', '0')
                                 ->when($start, fn($q) => $q->whereDate('attendance_date', '>=', $start))
                                 ->when($end, fn($q) => $q->whereDate('attendance_date', '<=', $end)),
                             'attendances as early_count' => fn($q) => $q
-                                ->where('status', 'pulang cepat')
+                                ->where('early_leave_minutes', '>', '0')
                                 ->when($start, fn($q) => $q->whereDate('attendance_date', '>=', $start))
                                 ->when($end, fn($q) => $q->whereDate('attendance_date', '<=', $end)),
                             'attendances as overtime_count' => fn($q) => $q
-                                ->where('status', 'lembur')
+                                ->where('overtime_minutes', '>', '0')
                                 ->when($start, fn($q) => $q->whereDate('attendance_date', '>=', $start))
                                 ->when($end, fn($q) => $q->whereDate('attendance_date', '<=', $end)),
                             'attendances as absent_count' => fn($q) => $q
-                                ->where('status', 'tidak absen')
+                                ->where('status', 'tidak_hadir')
+                                ->when($start, fn($q) => $q->whereDate('attendance_date', '>=', $start))
+                                ->when($end, fn($q) => $q->whereDate('attendance_date', '<=', $end)),
+                            'attendances as incomplete_count' => fn($q) => $q
+                                ->where('status', 'tidak_lengkap')
                                 ->when($start, fn($q) => $q->whereDate('attendance_date', '>=', $start))
                                 ->when($end, fn($q) => $q->whereDate('attendance_date', '<=', $end)),
 
@@ -85,6 +85,19 @@ class ManageEmployees extends ManageRecords
                                 ->whereDate('start_date', '<=', $end)
                                 ->whereDate('end_date', '>=', $start);
                         }, 'leaves_count')
+                        ->selectRaw("
+                            (
+                                (SELECT COUNT(*) FROM attendances 
+                                WHERE attendances.employee_id = employees.id 
+                                AND status = 'hadir' 
+                                AND attendance_date BETWEEN ? AND ?)
+                                + 
+                                (SELECT COUNT(*) * 0.5 FROM attendances 
+                                WHERE attendances.employee_id = employees.id 
+                                AND status = 'tidak_lengkap' 
+                                AND attendance_date BETWEEN ? AND ?)
+                            ) / ? * 100 as attendance_rate
+                        ", [$start, $end, $start, $end, $totalDays])
                         ->when(
                             $data['role'] ?? null,
                             fn($q) => $q->whereHas('user', fn($user) => $user->where('role', $data['role']))

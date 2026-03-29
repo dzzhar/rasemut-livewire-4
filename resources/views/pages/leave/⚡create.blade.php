@@ -9,7 +9,7 @@ use Livewire\Component;
 use Carbon\Carbon;
 
 new class extends Component {
-    public $showForm = false;
+    public $showForm = true;
 
     #[Validate('required|after_or_equal:today')]
     public $start_date;
@@ -23,32 +23,32 @@ new class extends Component {
         $this->validate();
 
         $employee = Auth::user()?->employee->id;
-        $checker = app(CheckerService::class)->setEmployee($employee);
+        // $checker = app(CheckerService::class)->setEmployee($employee);
 
-        // cek apakah ada cuti di periode ini
-        if ($checker->hasLeaveInRange($this->start_date, $this->end_date)) {
-            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda sudah atau sedang mengajukan cuti pada periode ini, sehingga tidak dapat mengajukan cuti.', type: 'warning');
-            return;
-        }
+        // // cek apakah ada cuti di periode ini
+        // if ($checker->hasLeaveInRange($this->start_date, $this->end_date)) {
+        //     $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda sudah atau sedang mengajukan cuti pada periode ini, sehingga tidak dapat mengajukan cuti.', type: 'warning');
+        //     return;
+        // }
 
-        // cek apakah telah melakukan izin hari ini
-        if ($checker->hasPermissionInRange($this->start_date, $this->end_date)) {
-            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda telah mengajukan izin hari ini. Jika terjadi kesalahan, silakan hubungi Admin.', type: 'danger');
-            return;
-        }
+        // // cek apakah telah melakukan izin hari ini
+        // if ($checker->hasPermissionInRange($this->start_date, $this->end_date)) {
+        //     $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda telah mengajukan izin hari ini. Jika terjadi kesalahan, silakan hubungi Admin.', type: 'danger');
+        //     return;
+        // }
 
-        // cek apakah telah melakukan presensi hari ini
-        if ($checker->hasAttendanceInRange($this->start_date, $this->end_date)) {
-            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda telah melakukan presensi hari ini, sehingga tidak dapat mengajukan cuti.', type: 'warning');
-            return;
-        }
+        // // cek apakah telah melakukan presensi hari ini
+        // if ($checker->hasAttendanceInRange($this->start_date, $this->end_date)) {
+        //     $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda telah melakukan presensi hari ini, sehingga tidak dapat mengajukan cuti.', type: 'warning');
+        //     return;
+        // }
 
         // jika belum, simpan
         DB::transaction(function () use ($employee) {
             Leave::create([
                 'employee_id' => $employee,
                 'request_date' => now(),
-                'leave_code' => 'Cuti #' . now()->format('dMyHis'),
+                'leave_code' => 'Pengajuan_' . uniqid(),
                 'start_date' => $this->start_date,
                 'end_date' => $this->end_date,
                 'description' => $this->description,

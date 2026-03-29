@@ -22,8 +22,8 @@ class ViewServiceProvider extends ServiceProvider
     {
         View::share('menuItems', [
             ['label' => 'Beranda', 'icon' => 'finger-print', 'href' => '/', 'match' => '/',],
-            ['label' => 'Perizinan', 'icon' => 'calendar-days', 'href' => 'permission', 'match' => 'permission*',],
-            ['label' => 'Ajukan Cuti', 'icon' => 'document-text', 'href' => 'leave', 'match' => 'leave*',],
+            ['label' => 'Izin/Sakit', 'icon' => 'document-text', 'href' => 'permission', 'match' => 'permission*',],
+            ['label' => 'Cuti', 'icon' => 'calendar-days', 'href' => 'leave', 'match' => 'leave*',],
         ]);
     }
 }

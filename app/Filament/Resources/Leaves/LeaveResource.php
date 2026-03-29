@@ -2,14 +2,17 @@
 
 namespace App\Filament\Resources\Leaves;
 
+use App\Enums\LeaveStatus;
 use App\Filament\Resources\Leaves\Pages\ManageLeaves;
 use App\Models\Leave;
+use App\Services\LeaveService;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -48,14 +51,16 @@ class LeaveResource extends Resource
     {
         return $schema
             ->components([
-                TextEntry::make('request_date')
-                    ->label('Tanggal Pengajuan')
-                    ->dateTime('l, d M Y H:s:i')
-                    ->suffix(' WIB'),
-                TextEntry::make('employee.fullname')
-                    ->label('Nama Karyawan'),
                 TextEntry::make('leave_code')
                     ->label('Kode Cuti'),
+                TextEntry::make('request_date')
+                    ->label('Tanggal Pengajuan')
+                    ->dateTime('l, d F Y'),
+                TextEntry::make('employee.fullname')
+                    ->label('Karyawan'),
+                TextEntry::make('employee.leave_remaining')
+                    ->label('Sisa Kuota Cuti')
+                    ->suffix(' hari'),
                 TextEntry::make('start_date')
                     ->label('Tanggal Mulai')
                     ->date(),
@@ -68,20 +73,22 @@ class LeaveResource extends Resource
                 TextEntry::make('description')
                     ->label('Keterangan')
                     ->placeholder('-')
-                    ->columnSpanFull(),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
+            ->modifyQueryUsing(function ($query) {
+                $query
+                    ->orderByRaw("status = 'pending' DESC")
+                    ->orderBy('request_date', 'asc');
+            })->columns([
                 TextColumn::make('request_date')
                     ->label('Tanggal Pengajuan')
-                    ->date('l, d F Y')
-                    ->sortable(),
+                    ->date('l, d F Y'),
                 TextColumn::make('employee.fullname')
-                    ->label('Nama Karyawan')
+                    ->label('Karyawan')
                     ->searchable(),
                 TextColumn::make('leave_code')
                     ->label('Kode Cuti')
@@ -94,12 +101,43 @@ class LeaveResource extends Resource
                     ->date(),
                 SelectColumn::make('status')
                     ->options([
-                        'pending' => 'Pending',
-                        'disetujui' => 'Disetujui',
-                        'ditolak' => 'Ditolak'
+                        'disetujui' => 'disetujui',
+                        'ditolak' => 'ditolak'
                     ])
                     ->native(false)
                     ->selectablePlaceholder(false)
+                    ->updateStateUsing(function ($record, $state) {
+                        $newStatus = match ($state) {
+                            'disetujui' => LeaveStatus::Disetujui,
+                            'ditolak' => LeaveStatus::Ditolak,
+                        };
+
+                        $result = LeaveService::updateStatus($record, $newStatus);
+
+                        if (!$result['success']) {
+                            Notification::make()
+                                ->danger()
+                                ->title($result['message'])
+                                ->body($result['body'])
+                                ->send();
+
+                            // return old sttatus, because update status failed
+                            return $record->status->value;
+                        }
+
+                        Notification::make()
+                            ->success()
+                            ->title($result['message'])
+                            ->send();
+
+                        return $newStatus->value;
+                    })
+                    // disabled when first status updated at more than 12 hours
+                    ->disabled(
+                        fn($record) => $record->first_status_updated_at && now()->greaterThanOrEqualTo(
+                            $record->first_status_updated_at->addHours(12)
+                        )
+                    )
             ])
             ->recordActions([
                 ViewAction::make(),

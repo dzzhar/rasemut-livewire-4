@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Attendance;
 use App\Models\AttendanceSetting;
 use Carbon\Carbon;
+use Carbon\CarbonInterval;
 use Illuminate\Support\Facades\DB;
 
 class AttendanceService
@@ -20,189 +21,126 @@ class AttendanceService
         $this->checker = app(CheckerService::class)->setEmployee($employeeId);
     }
 
-    // untuk mendapatkan status presensi hari ini
-    public function getTodayState(): array
+    public function getToday()
     {
-        return $this->getAttendanceByDate(now());
+        return Attendance::where('employee_id', $this->employeeId)
+            ->whereDate('attendance_date', now())
+            ->first();
     }
 
-    // handle presensi utama
     public function handleAttendance(): array
     {
         return DB::transaction(function () {
             $now = now();
 
-            // kalo misal belum absen kemarin, maka otomatis dianggap tidak absen
-            $this->handleYesterday();
-
-            // cek cuti hari ini
             if ($this->checker->hasLeaveToday($now)) {
                 return [
                     'title' => 'Presensi Gagal',
-                    'message' => 'Anda sedang dalam periode cuti hari ini, sehingga tidak dapat melakukan presensi.',
+                    'message' => 'Anda sedang cuti hari ini.',
                     'type' => 'warning',
                 ];
             }
 
-            // cek izin hari ini
             if ($this->checker->hasPermissionToday($now)) {
                 return [
                     'title' => 'Presensi Gagal',
-                    'message' => 'Anda telah mengajukan izin hari ini, sehingga tidak dapat melakukan presensi.',
+                    'message' => 'Anda telah mengajukan izin hari ini.',
                     'type' => 'warning',
                 ];
             }
 
-            // cek presensi hari ini
-            $today = $this->getAttendanceByDate($now);
+            $attendance = Attendance::firstOrCreate([
+                'employee_id' => $this->employeeId,
+                'attendance_date' => $now->toDateString(),
+            ], ['status' => 'tidak_lengkap']);
 
-            if (!$today['in']) {
-                $this->doCheckIn($now);
-            } elseif (!$today['out']) {
-                $this->doCheckOut($now);
+            if (!$attendance->check_in) {
+                $this->doCheckIn($attendance, $now);
+            } elseif (!$attendance->check_out) {
+                $this->doCheckOut($attendance, $now);
             }
 
             return [
                 'title' => 'Presensi Berhasil!',
-                'message' => 'Presensi Anda hari ini berhasil dilakukan.',
-                'type' => 'success',
+                'message' => 'Presensi Anda berhasil dilakukan.',
+                'type' => 'success'
             ];
         });
     }
 
-    // aksi untuk presensi masuk (check-in)
-    protected function doCheckIn(Carbon $now)
+    protected function doCheckIn(Attendance $attendance, Carbon $now)
     {
-        // handle waktu check-in
-        $timeCheckIn = Carbon::today()
-            ->setTimeFromTimeString($this->setting->check_in_setting);
+        $timeCheckIn = Carbon::parse($this->setting->check_in_setting)
+            ->setDate($now->year, $now->month, $now->day);
 
-        // handle status terlambat atau tepat waktu
-        if ($now->gt($timeCheckIn)) {
-            $diff = $timeCheckIn->diff($now);
-            $status = 'terlambat';
-            $desc = sprintf("Terlambat %02d jam %02d menit %02d detik", $diff->h, $diff->i, $diff->s);
-        } else {
-            $status = 'tepat waktu';
-            $desc = null;
-        }
-
-        // simpan data presensi masuk
-        Attendance::create([
-            'employee_id' => $this->employeeId,
-            'attendance_date' => $now,
-            'attendance_type' => 'in',
-            'status' => $status,
-            'description' => $desc
-        ]);
-    }
-
-    // aksi untuk presensi pulang (check-out)
-    protected function doCheckOut(Carbon $now)
-    {
-        // handle waktu check-out
-        $timeCheckOut = Carbon::today()
-            ->setTimeFromTimeString($this->setting->check_out_setting);
-
-        // handle toleransi lembur
-        $overtime = $timeCheckOut
-            ->copy()
-            ->addMinutes($this->setting->overtime_tolerance);
-
-        // handle status pulang cepat, akhir shift, atau lembur
-        $status = match (true) {
-            // kurang dari waktu check-out → pulang cepat
-            $now->lt($timeCheckOut) => 'pulang cepat',
-            // antara waktu check-out sampai akhir toleransi lembur → akhir shift
-            $now->between($timeCheckOut, $overtime) => 'akhir shift',
-            // lebih dari waktu toleransi lembur → lembur
-            $now->gt($overtime) => 'lembur',
-        };
-
+        $lateMinutes = 0;
         $desc = null;
 
-        // handle deskripsi waktu lembur
-        if ($status === 'lembur') {
-            $diff = $overtime->diff($now);
-            $desc = sprintf("Lembur %02d jam %02d menit %02d detik", $diff->h, $diff->i, $diff->s);
+        if ($now->greaterThan($timeCheckIn)) {
+            $lateMinutes = $timeCheckIn->diffInMinutes($now);
+            $lateMinutes = max(0, (int) $lateMinutes);
+
+            $desc = "Terlambat {$this->formattedTime($lateMinutes)}";
         }
 
-        // simpan data presensi pulang
-        Attendance::create([
-            'employee_id' => $this->employeeId,
-            'attendance_date' => $now,
-            'attendance_type' => 'out',
-            'status' => $status,
-            'description' => $desc
+        $attendance->update([
+            'check_in' => $now->toTimeString(),
+            'late_minutes' => $lateMinutes,
+            'status' => 'hadir',
+            'description' => $desc,
         ]);
     }
 
-    // handle data presensi yang tidak melakukan aksi kemarin
-    protected function handleYesterday(): void
+    protected function doCheckOut(Attendance $attendance, Carbon $now)
     {
-        $yesterday = now()->subDay()->startOfDay();
+        $workStart = Carbon::parse($this->setting->check_in_setting)
+            ->setDate($now->year, $now->month, $now->day);
 
-        // kalo kemarin bukan hari kerja → stop
-        if (!$this->isWorkingDay($yesterday)) {
-            return;
+        $workEnd = Carbon::parse($this->setting->check_out_setting)
+            ->setDate($now->year, $now->month, $now->day);
+
+        $desc = $attendance->description ?? '';
+
+        // pulang cepat
+        $earlyLeaveMinutes = 0;
+        if ($now->lessThan($workEnd)) {
+            $earlyLeaveMinutes = $now->diffInMinutes($workEnd);
+            $earlyLeaveMinutes = max(0, (int) $earlyLeaveMinutes);
+
+            $desc .= ($desc ? '; ' : '') . "Pulang cepat {$this->formattedTime($earlyLeaveMinutes)}";
         }
 
-        // kalo iya hari kerja, cek data presensi kemarin
-        $data = $this->getAttendanceByDate($yesterday);
+        // total kerja
+        $checkIn = $attendance->check_in
+            ? Carbon::parse($attendance->check_in)->setDate($now->year, $now->month, $now->day)
+            : null;
 
+        $totalWorkedMinutes = $checkIn ? $checkIn->diffInMinutes($now) : 0;
+        $normalWorkMinutes = $workStart->diffInMinutes($workEnd);
 
-        // Tidak klik sama sekali
-        if (!$data['in'] && !$data['out']) {
-            // simpan data presensi masuk dengan status tidak absen
-            Attendance::create([
-                'employee_id' => $this->employeeId,
-                'attendance_date' => $yesterday,
-                'attendance_type' => 'out',
-                'status' => 'tidak absen',
-                'description' => 'Tidak melakukan presensi pulang'
-            ]);
+        // lembur
+        $overtimeMinutes = max(0, $totalWorkedMinutes - $normalWorkMinutes);
 
-            // simpan data presensi pulang dengan status tidak absen
-            Attendance::create([
-                'employee_id' => $this->employeeId,
-                'attendance_date' => $yesterday,
-                'attendance_type' => 'in',
-                'status' => 'tidak absen',
-                'description' => 'Tidak melakukan presensi masuk'
-            ]);
+        if ($overtimeMinutes > 0) {
+            $desc .= ($desc ? '; ' : '') . "Lembur {$this->formattedTime($overtimeMinutes)} menit";
         }
 
-        // check-in tetapi tidak check-out
-        elseif ($data['in'] && !$data['out']) {
-            // simpan data presensi pulang dengan status tidak absen
-            Attendance::create([
-                'employee_id' => $this->employeeId,
-                'attendance_date' => $yesterday,
-                'attendance_type' => 'out',
-                'status' => 'tidak absen',
-                'description' => 'Tidak melakukan presensi pulang'
-            ]);
-        }
+        $attendance->update([
+            'check_out' => $now->toTimeString(),
+            'early_leave_minutes' => $earlyLeaveMinutes,
+            'overtime_minutes' => $overtimeMinutes,
+            'status' => 'hadir',
+            'description' => $desc,
+        ]);
     }
 
-    // fungsi untuk cek hari kerja (senin-jumat)
     public function isWorkingDay(Carbon $date): bool
     {
         return $date->isWeekday();
     }
 
-    // ambil data presensi berdasarkan tanggal dan tipe presensi
-    protected function getAttendanceByDate(Carbon $date): array
+    public function formattedTime(int $lateMinutes): string
     {
-        $data = Attendance::where('employee_id', $this->employeeId)
-            ->whereDate('attendance_date', $date)
-            ->orderByRaw("FIELD(attendance_type, 'out', 'in')")
-            ->get()
-            ->keyBy('attendance_type');
-
-        return [
-            'in' => $data->get('in'),
-            'out' => $data->get('out'),
-        ];
+        return CarbonInterval::minutes($lateMinutes)->cascade();
     }
 }

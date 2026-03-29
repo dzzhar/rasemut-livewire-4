@@ -20,6 +20,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
 class EmployeeResource extends Resource
@@ -54,10 +55,12 @@ class EmployeeResource extends Resource
                         'admin' => 'Admin',
                         'employee' => 'Karyawan'
                     ])
+                    ->selectablePlaceholder(false)
                     ->required(),
                 Select::make('position_id')
                     ->relationship('position', 'name')
                     ->label('Jabatan')
+                    ->selectablePlaceholder(false)
                     ->required(),
                 TextInput::make('user_email')
                     ->label('Email')
@@ -112,16 +115,29 @@ class EmployeeResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultSort('is_active', 'desc')
+            ->paginated(10)
+            ->modifyQueryUsing(function (Builder $query) {
+                $query
+                    ->leftJoin('users', 'employees.user_id', '=', 'users.id')
+                    ->leftJoin('sessions', 'users.id', '=', 'sessions.user_id')
+                    ->orderByRaw('
+                    CASE 
+                        WHEN sessions.user_id IS NOT NULL THEN 0
+                        ELSE 1
+                    END
+                ')
+                    ->orderBy('employees.is_active', 'desc')
+                    ->orderBy('employees.fullname', 'asc')
+                    ->select('employees.*')
+                    ->groupBy('employees.id');
+            })
             ->columns([
                 TextColumn::make('fullname')
                     ->label('Nama Lengkap')
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(),
                 TextColumn::make('employee_code')
                     ->label('Nomor Karyawan')
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(),
                 ToggleColumn::make('is_active')
                     ->label('Aktif')
                     ->disabled(fn($record) => $record->user?->hasActiveSession())
@@ -138,8 +154,7 @@ class EmployeeResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn($state) => $state === 'admin' ? 'admin' : 'karyawan')
                     ->color(fn($state) => $state === 'admin' ? 'success' : 'primary')
-                    ->alignCenter()
-                    ->sortable(),
+                    ->alignCenter(),
             ])
             ->recordActions([
                 ViewAction::make(),
@@ -155,7 +170,7 @@ class EmployeeResource extends Resource
                     ),
                 DeleteAction::make()
                     ->action(fn(Employee $record) => app(EmployeeService::class)->delete($record))
-                    ->disabled(fn($record) => $record->user?->hasActiveSession())
+                    ->hidden(fn($record) => $record->user?->hasActiveSession())
                     ->tooltip(
                         fn($record) =>
                         $record->user?->hasActiveSession()

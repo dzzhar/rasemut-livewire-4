@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('fullname', 256)->index();
             $table->string('employee_code', 20)->unique();
             $table->boolean('is_active')->default(true);
+            $table->integer('leave_remaining');
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('position_id')->nullable()->constrained('positions')->nullOnDelete();
             $table->timestamps();

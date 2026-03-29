@@ -15,7 +15,7 @@ new class extends Component {
             return collect();
         }
 
-        $this->selected = Attendance::select('id', 'attendance_date', 'attendance_type', 'status', 'description')->whereBelongsTo($employee)->where('id', $id)->first();
+        $this->selected = Attendance::select('id', 'attendance_date', 'check_in', 'check_out', 'status', 'description')->whereBelongsTo($employee)->where('id', $id)->first();
 
         if ($this->selected) {
             $this->modal('detail-modal-attendance')->show();
@@ -31,13 +31,21 @@ new class extends Component {
 
         @if ($selected)
             <div>
-                <flux:heading>Jenis Presensi</flux:heading>
-                <flux:text class="mt-2 capitalize">{{ 'Check ' . $selected->attendance_type }}</flux:text>
-            </div>
-            <div>
                 <flux:heading>Tanggal Presensi</flux:heading>
                 <flux:text class="mt-2">
-                    {{ $selected->history_date ? $selected->history_date->translatedFormat('l, d F Y • H:i:s') . ' WIB' : '-' }}
+                    {{ $selected->history_date ? $selected->history_date->translatedFormat('l, d F Y') : '-' }}
+                </flux:text>
+            </div>
+            <div>
+                <flux:heading>Presensi Masuk</flux:heading>
+                <flux:text class="mt-2 capitalize">
+                    {{ $selected->check_in ? $selected->check_in . ' WIB' : '-' }}
+                </flux:text>
+            </div>
+            <div>
+                <flux:heading>Presensi Keluar</flux:heading>
+                <flux:text class="mt-2 capitalize">
+                    {{ $selected->check_out ? $selected->check_out . ' WIB' : '-' }}
                 </flux:text>
             </div>
             <div>
@@ -49,7 +57,7 @@ new class extends Component {
             <div>
                 <flux:heading>Status</flux:heading>
                 <flux:badge rounded size="sm" :color="$selected->status->badgeColor()" class="mt-2">
-                    {{ $selected->status }}
+                    {{ $selected->status->badgeLabel() }}
                 </flux:badge>
             </div>
         @endif

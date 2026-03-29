@@ -58,7 +58,7 @@ class PositionResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('Nama Jabatan')
+                    ->label('Jabatan')
                     ->searchable(),
             ])
             ->recordActions([

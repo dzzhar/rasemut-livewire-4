@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AttendanceSetting;
 use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +24,8 @@ class EmployeeService
                 'user_id' => $user->id,
                 'fullname' => $data['fullname'],
                 'employee_code' => $data['employee_code'],
-                'position_id' => $data['position_id']
+                'position_id' => $data['position_id'],
+                'leave_remaining' => AttendanceSetting::first()->leave_quota
             ]);
         });
     }
@@ -32,22 +34,33 @@ class EmployeeService
     public function update(Employee $employee, array $data): Employee
     {
         return DB::transaction(function () use ($employee, $data) {
+            // lock employee row
+            $employee = Employee::where('id', $employee->id)
+                ->lockForUpdate()
+                ->first();
+
+            // lock user row
+            $userModel = User::where('id', $employee->user_id)
+                ->lockForUpdate()
+                ->first();
+
             $user = [
                 'email' => $data['user_email'],
                 'role' => $data['user_role'],
             ];
 
-            // the input field is filled by password
             if (!empty($data['user_password'])) {
                 $user['password'] = Hash::make($data['user_password']);
             }
 
-            $employee->user->update($user);
+            $userModel->update($user);
+
             $employee->update([
                 'fullname' => $data['fullname'],
                 'employee_code' => $data['employee_code'],
                 'position_id' => $data['position_id'],
             ]);
+
             return $employee;
         });
     }
@@ -56,7 +69,17 @@ class EmployeeService
     public function delete(Employee $employee): void
     {
         DB::transaction(function () use ($employee) {
-            $employee->user()->delete();
+            // lock employee row
+            $employee = Employee::where('id', $employee->id)
+                ->lockForUpdate()
+                ->first();
+
+            // lock user row
+            $user = User::where('id', $employee->user_id)
+                ->lockForUpdate()
+                ->first();
+
+            $user->delete();
             $employee->delete();
         });
     }

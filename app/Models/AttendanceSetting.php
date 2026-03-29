@@ -13,6 +13,7 @@ class AttendanceSetting extends Model
     protected $fillable = [
         'check_in_setting',
         'check_out_setting',
+        'leave_quota',
         'overtime_tolerance',
         'latitude',
         'longitude',
