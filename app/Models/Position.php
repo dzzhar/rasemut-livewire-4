@@ -11,6 +11,7 @@ class Position extends Model
     use HasFactory;
     protected $table = 'positions';
     protected $fillable = ['name', 'description'];
+    public $timestamps = false;
 
     public function employees(): HasMany
     {

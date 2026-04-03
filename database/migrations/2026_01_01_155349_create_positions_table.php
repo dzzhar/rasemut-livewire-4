@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id();
             $table->string('name', 256)->index();
             $table->text('description');
-            $table->timestamps();
         });
     }
 

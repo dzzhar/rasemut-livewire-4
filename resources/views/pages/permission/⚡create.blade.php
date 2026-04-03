@@ -47,25 +47,25 @@ new class extends Component {
         $this->validate();
 
         $employee = Auth::user()?->employee->id;
-        // $checker = app(CheckerService::class)->setEmployee($employee);
+        $checker = app(CheckerService::class)->setEmployee($employee);
 
-        // // cek apakah telah mengajukan izin hari ini
-        // if ($checker->hasPermissionToday(now())) {
-        //     $this->dispatch('show-feedback', title: 'Gagal Mengajukan Izin', message: 'Anda telah mengajukan izin hari ini. Jika terjadi kesalahan, silakan hubungi Admin.', type: 'danger');
-        //     return;
-        // }
+        // cek apakah telah mengajukan izin hari ini
+        if ($checker->hasPermissionToday(now())) {
+            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Izin', message: 'Anda telah mengajukan izin hari ini. Jika terjadi kesalahan, silakan hubungi Admin.', type: 'danger');
+            return;
+        }
 
-        // // cek apakah ada cuti di periode ini
-        // if ($checker->hasLeaveToday(now())) {
-        //     $this->dispatch('show-feedback', title: 'Gagal Mengajukan Izin', message: 'Anda sedang dalam periode cuti hari ini, sehingga tidak dapat melakukan presensi.', type: 'warning');
-        //     return;
-        // }
+        // cek apakah ada cuti di periode ini
+        if ($checker->hasLeaveToday(now())) {
+            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Izin', message: 'Anda sedang dalam periode cuti hari ini, sehingga tidak dapat melakukan presensi.', type: 'warning');
+            return;
+        }
 
-        // // cek apakah telah melakukan presensi hari ini
-        // if ($checker->hasAttendanceToday(now())) {
-        //     $this->dispatch('show-feedback', title: 'Gagal Mengajukan Izin', message: 'Anda telah melakukan presensi hari ini, sehingga tidak dapat mengajukan izin.', type: 'warning');
-        //     return;
-        // }
+        // cek apakah telah melakukan presensi hari ini
+        if ($checker->hasAttendanceToday(now())) {
+            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Izin', message: 'Anda telah melakukan presensi hari ini, sehingga tidak dapat mengajukan izin.', type: 'warning');
+            return;
+        }
 
         $path = null;
         if ($this->file_path) {
@@ -111,20 +111,20 @@ new class extends Component {
         <flux:card size="md" class="bg-white dark:bg-zinc-900" x-cloak>
             <div x-on:click="$wire.showForm = !$wire.showForm" class="cursor-pointer">
                 <flux:fieldset class="flex items-center justify-between">
-                    <flux:text size="xl" level="2" class="text-zinc-800 dark:text-white font-medium">
-                        Formulir Perizinan
-                    </flux:text>
+                    <div>
+                        <flux:heading size="lg" class="font-semibold">Formulir Perizinan</flux:heading>
+                        <flux:text>{{ now()->translatedFormat('l, d F Y') }}</flux:text>
+                    </div>
 
                     <flux:button size="sm" icon="chevron-down" variant="ghost" />
                 </flux:fieldset>
                 <flux:separator variant="subtle" class="mt-6" wire:show="showForm" x-transition.duration.500ms />
             </div>
 
-            <form class="space-y-6 mt-4" wire:show="showForm" x-transition.duration.500ms wire:submit.prevent="save"
+            <form class="space-y-6 pt-6" wire:show="showForm" x-transition.duration.500ms wire:submit.prevent="save"
                 enctype="multipart/form-data">
                 <div class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Select -->
                         <div class="{{ $file_path ? 'md:col-span-2' : '' }}">
                             <flux:select label="Jenis Izin" wire:model="permission_type"
                                 placeholder="Pilih jenis izin...">
@@ -136,11 +136,9 @@ new class extends Component {
                             </flux:select>
                         </div>
 
-                        <!-- Input File -->
                         <flux:input wire:model="file_path" type="file" label="Bukti Izin/Sakit"
                             accept="image/png,image/jpeg,image/jpg" />
 
-                        <!-- Preview -->
                         @if ($file_path)
                             <div class="flex justify-start md:justify-end w-full mt-2">
                                 <div class="relative w-full md:max-w-56">
@@ -162,7 +160,8 @@ new class extends Component {
 
 
                 <flux:button variant="primary" color="blue" class="w-full" type="submit" wire:loading.attr="disabled"
-                    wire:target="file_path">Kirim
+                    wire:target="file_path">
+                    Kirim
                 </flux:button>
             </form>
         </flux:card>

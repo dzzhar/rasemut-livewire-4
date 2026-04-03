@@ -32,7 +32,5 @@ class ResetLeaveQuota extends Command
             'leave_remaining' => $quota,
             'updated_at' => now(),
         ]);
-
-        $this->info('Leave quota reset successfully');
     }
 }

@@ -29,6 +29,7 @@ class UpdateAttendanceStatus extends Command
         $today = now()->toDateString();
         $now = now();
 
+        // find employees who have not checked in today
         $employees = DB::table('employees')
             ->leftJoin('attendances', function ($join) use ($today) {
                 $join->on('employees.id', '=', 'attendances.employee_id')
@@ -38,6 +39,7 @@ class UpdateAttendanceStatus extends Command
             ->select('employees.id')
             ->get();
 
+        // mark them as 'tidak_hadir'
         $data = $employees->map(function ($emp) use ($today, $now) {
             return [
                 'employee_id'     => $emp->id,
@@ -52,12 +54,11 @@ class UpdateAttendanceStatus extends Command
             DB::table('attendances')->insert($data);
         }
 
+        // mark employees who checked in but not checked out as 'tidak_lengkap'
         DB::table('attendances')
             ->whereDate('attendance_date', $today)
             ->whereNotNull('check_in')
             ->whereNull('check_out')
             ->update(['status' => 'tidak_lengkap']);
-
-        $this->info('Attendance updated');
     }
 }

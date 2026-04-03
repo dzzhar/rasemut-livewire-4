@@ -21,6 +21,7 @@ class AttendanceService
         $this->checker = app(CheckerService::class)->setEmployee($employeeId);
     }
 
+    // retrieve todays attendance record
     public function getToday()
     {
         return Attendance::where('employee_id', $this->employeeId)
@@ -28,11 +29,13 @@ class AttendanceService
             ->first();
     }
 
-    public function handleAttendance(): array
+    // handle attendance
+    public function handleAttendance(float $userLatitude, float $userLongitude): array
     {
-        return DB::transaction(function () {
+        return DB::transaction(function () use ($userLatitude, $userLongitude) {
             $now = now();
 
+            // if theres a leave today, block attendance
             if ($this->checker->hasLeaveToday($now)) {
                 return [
                     'title' => 'Presensi Gagal',
@@ -41,6 +44,7 @@ class AttendanceService
                 ];
             }
 
+            // if theres a permission today, block attendance
             if ($this->checker->hasPermissionToday($now)) {
                 return [
                     'title' => 'Presensi Gagal',
@@ -49,6 +53,24 @@ class AttendanceService
                 ];
             }
 
+            // calculate distance between user location and school location
+            $distance = $this->calculateDistance(
+                $userLatitude,
+                $userLongitude,
+                $this->setting->latitude,
+                $this->setting->longitude
+            );
+
+            // if distance is greater than radius, block attendance
+            if ($distance > $this->setting->radius_attendance) {
+                return [
+                    'title' => 'Diluar Jangkauan',
+                    'message' => "Jarak Anda " . round($distance) . "m dari sekolah. Maksimal radius adalah {$this->setting->radius_attendance} m.",
+                    'type' => 'error',
+                ];
+            }
+
+            // create or update attendance record
             $attendance = Attendance::firstOrCreate([
                 'employee_id' => $this->employeeId,
                 'attendance_date' => $now->toDateString(),
@@ -68,6 +90,7 @@ class AttendanceService
         });
     }
 
+    // handle check in logic
     protected function doCheckIn(Attendance $attendance, Carbon $now)
     {
         $timeCheckIn = Carbon::parse($this->setting->check_in_setting)
@@ -91,6 +114,7 @@ class AttendanceService
         ]);
     }
 
+    // handle check out logic
     protected function doCheckOut(Attendance $attendance, Carbon $now)
     {
         $workStart = Carbon::parse($this->setting->check_in_setting)
@@ -101,7 +125,7 @@ class AttendanceService
 
         $desc = $attendance->description ?? '';
 
-        // pulang cepat
+        // pulang cepat logic n description
         $earlyLeaveMinutes = 0;
         if ($now->lessThan($workEnd)) {
             $earlyLeaveMinutes = $now->diffInMinutes($workEnd);
@@ -110,7 +134,7 @@ class AttendanceService
             $desc .= ($desc ? '; ' : '') . "Pulang cepat {$this->formattedTime($earlyLeaveMinutes)}";
         }
 
-        // total kerja
+        // calculate total worked minutes
         $checkIn = $attendance->check_in
             ? Carbon::parse($attendance->check_in)->setDate($now->year, $now->month, $now->day)
             : null;
@@ -118,13 +142,14 @@ class AttendanceService
         $totalWorkedMinutes = $checkIn ? $checkIn->diffInMinutes($now) : 0;
         $normalWorkMinutes = $workStart->diffInMinutes($workEnd);
 
-        // lembur
+        // lembur logic n description
         $overtimeMinutes = max(0, $totalWorkedMinutes - $normalWorkMinutes);
 
         if ($overtimeMinutes > 0) {
-            $desc .= ($desc ? '; ' : '') . "Lembur {$this->formattedTime($overtimeMinutes)} menit";
+            $desc .= ($desc ? '; ' : '') . "Lembur {$this->formattedTime($overtimeMinutes)}";
         }
 
+        // update attendance record
         $attendance->update([
             'check_out' => $now->toTimeString(),
             'early_leave_minutes' => $earlyLeaveMinutes,
@@ -132,6 +157,26 @@ class AttendanceService
             'status' => 'hadir',
             'description' => $desc,
         ]);
+    }
+
+    // haversine formula to calculate distance
+    protected function calculateDistance($lat1, $lon1, $lat2, $lon2): float
+    {
+        // radius of the earth in meters
+        $earthRadius = 6371000;
+
+        $latFrom = deg2rad($lat1);
+        $lonFrom = deg2rad($lon1);
+        $latTo = deg2rad($lat2);
+        $lonTo = deg2rad($lon2);
+
+        $latDelta = $latTo - $latFrom;
+        $lonDelta = $lonTo - $lonFrom;
+
+        $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) +
+            cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
+
+        return $angle * $earthRadius;
     }
 
     public function isWorkingDay(Carbon $date): bool

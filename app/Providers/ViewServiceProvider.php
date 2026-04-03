@@ -20,6 +20,7 @@ class ViewServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // menu items navigation
         View::share('menuItems', [
             ['label' => 'Beranda', 'icon' => 'finger-print', 'href' => '/', 'match' => '/',],
             ['label' => 'Izin/Sakit', 'icon' => 'document-text', 'href' => 'permission', 'match' => 'permission*',],

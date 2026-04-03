@@ -24,8 +24,6 @@ class AttendanceSettingFactory extends Factory
             'latitude' => $latitude,
             'longitude' => $longitude,
             'radius_attendance' => $this->faker->numberBetween(50, 500),
-            'created_at' => now(),
-            'updated_at' => now(),
         ];
     }
 }

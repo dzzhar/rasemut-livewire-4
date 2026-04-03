@@ -42,9 +42,9 @@ class ManageAttendances extends ManageRecords
                     DatePicker::make('end_period')->label('Periode Akhir'),
                     Select::make('status')->label('Status Presensi')->options([
                         'hadir' => 'Hadir',
-                        'tidak hadir' => 'Tidak Hadir',
-                        'tidak lengkap' => 'Tidak Lengkap',
-                    ])
+                        'tidak_hadir' => 'Tidak Hadir',
+                        'tidak_lengkap' => 'Tidak Lengkap',
+                    ])->placeholder('Semua Status'),
                 ])
         ];
     }

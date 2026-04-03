@@ -14,8 +14,6 @@ class PositionFactory extends Factory
         return [
             'name' => fake()->jobTitle(),
             'description' => fake()->paragraph(),
-            'created_at' => now(),
-            'updated_at' => now(),
         ];
     }
 }

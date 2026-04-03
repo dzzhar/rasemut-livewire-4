@@ -38,8 +38,7 @@ class EmployeeResource extends Resource
             ->components([
                 TextInput::make('fullname')
                     ->label('Nama Lengkap')
-                    ->placeholder('Masukkan nama lengkap')
-                    ->required(),
+                    ->placeholder('Masukkan nama lengkap'),
                 TextInput::make('employee_code')
                     ->label('Nomor Karyawan')
                     ->placeholder('Masukkan nomor karyawan')
@@ -47,21 +46,16 @@ class EmployeeResource extends Resource
                         table: 'employees',
                         column: 'employee_code',
                         ignorable: fn($record) => $record
-                    )
-                    ->required(),
+                    ),
                 Select::make('user_role')
                     ->label('Role')
                     ->options([
                         'admin' => 'Admin',
                         'employee' => 'Karyawan'
-                    ])
-                    ->selectablePlaceholder(false)
-                    ->required(),
+                    ]),
                 Select::make('position_id')
                     ->relationship('position', 'name')
-                    ->label('Jabatan')
-                    ->selectablePlaceholder(false)
-                    ->required(),
+                    ->label('Jabatan'),
                 TextInput::make('user_email')
                     ->label('Email')
                     ->placeholder('Masukkan email karyawan terdaftar')
@@ -70,8 +64,7 @@ class EmployeeResource extends Resource
                         table: 'users',
                         column: 'email',
                         ignorable: fn($record) => $record?->user
-                    )
-                    ->required(),
+                    ),
                 TextInput::make('user_password')
                     ->label('Kata Sandi')
                     ->placeholder('Masukkan kata sandi untuk karyawan')
@@ -120,12 +113,7 @@ class EmployeeResource extends Resource
                 $query
                     ->leftJoin('users', 'employees.user_id', '=', 'users.id')
                     ->leftJoin('sessions', 'users.id', '=', 'sessions.user_id')
-                    ->orderByRaw('
-                    CASE 
-                        WHEN sessions.user_id IS NOT NULL THEN 0
-                        ELSE 1
-                    END
-                ')
+                    ->orderByRaw('CASE WHEN sessions.user_id IS NOT NULL THEN 0 ELSE 1 END')
                     ->orderBy('employees.is_active', 'desc')
                     ->orderBy('employees.fullname', 'asc')
                     ->select('employees.*')

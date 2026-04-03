@@ -17,7 +17,6 @@ return new class extends Migration
             $table->double('latitude')->nullable();
             $table->double('longitude')->nullable();
             $table->unsignedInteger('radius_attendance');
-            $table->timestamps();
         });
     }
 

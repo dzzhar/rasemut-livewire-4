@@ -80,9 +80,13 @@ class LeaveResource extends Resource
     {
         return $table
             ->modifyQueryUsing(function ($query) {
-                $query
-                    ->orderByRaw("status = 'pending' DESC")
-                    ->orderBy('request_date', 'asc');
+                $query->orderByRaw("
+                    CASE status
+                        WHEN 'pending' THEN 1
+                        WHEN 'disetujui' THEN 2
+                        WHEN 'ditolak' THEN 3
+                    END ASC
+                ")->orderBy('request_date', 'asc');
             })->columns([
                 TextColumn::make('request_date')
                     ->label('Tanggal Pengajuan')
@@ -102,41 +106,36 @@ class LeaveResource extends Resource
                 SelectColumn::make('status')
                     ->options([
                         'disetujui' => 'disetujui',
-                        'ditolak' => 'ditolak'
+                        'ditolak' => 'ditolak',
                     ])
                     ->native(false)
                     ->selectablePlaceholder(false)
                     ->updateStateUsing(function ($record, $state) {
-                        $newStatus = match ($state) {
+                        $map = [
                             'disetujui' => LeaveStatus::Disetujui,
                             'ditolak' => LeaveStatus::Ditolak,
-                        };
+                        ];
 
+                        $newStatus = $map[$state] ?? $record->status;
                         $result = LeaveService::updateStatus($record, $newStatus);
 
-                        if (!$result['success']) {
-                            Notification::make()
-                                ->danger()
-                                ->title($result['message'])
-                                ->body($result['body'])
-                                ->send();
+                        $notification = Notification::make()
+                            ->title($result['message']);
 
-                            // return old sttatus, because update status failed
-                            return $record->status->value;
+                        if ($result['success']) {
+                            $notification->success();
+                            $notification->send();
+                            return $newStatus->value;
                         }
 
-                        Notification::make()
-                            ->success()
-                            ->title($result['message'])
-                            ->send();
+                        $notification->danger()->body($result['body'] ?? null)->send();
 
-                        return $newStatus->value;
+                        // kembalikan status lama jika gagal
+                        return $record->status->value;
                     })
-                    // disabled when first status updated at more than 12 hours
                     ->disabled(
-                        fn($record) => $record->first_status_updated_at && now()->greaterThanOrEqualTo(
-                            $record->first_status_updated_at->addHours(12)
-                        )
+                        fn($record) =>
+                        $record->first_status_updated_at?->addHours(12)?->isPast() ?? false
                     )
             ])
             ->recordActions([

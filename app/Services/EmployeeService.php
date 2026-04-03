@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 
 class EmployeeService
 {
-    // store data user + employee
+    // store data user n employee
     public function create(array $data): Employee
     {
         return DB::transaction(function () use ($data) {
@@ -30,7 +30,7 @@ class EmployeeService
         });
     }
 
-    // update data user + employee
+    // update data user n employee
     public function update(Employee $employee, array $data): Employee
     {
         return DB::transaction(function () use ($employee, $data) {
@@ -65,7 +65,7 @@ class EmployeeService
         });
     }
 
-    // delete data user + employee
+    // delete data user n employee
     public function delete(Employee $employee): void
     {
         DB::transaction(function () use ($employee) {

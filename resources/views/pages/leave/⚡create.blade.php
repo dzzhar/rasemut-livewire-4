@@ -10,6 +10,7 @@ use Carbon\Carbon;
 
 new class extends Component {
     public $showForm = true;
+    public $leave_remaining;
 
     #[Validate('required|after_or_equal:today')]
     public $start_date;
@@ -18,30 +19,35 @@ new class extends Component {
     #[Validate('required')]
     public $description;
 
+    public function mount()
+    {
+        $this->leave_remaining = Auth::user()->employee->leave_remaining ?? 0;
+    }
+
     public function save()
     {
         $this->validate();
 
         $employee = Auth::user()?->employee->id;
-        // $checker = app(CheckerService::class)->setEmployee($employee);
+        $checker = app(CheckerService::class)->setEmployee($employee);
 
-        // // cek apakah ada cuti di periode ini
-        // if ($checker->hasLeaveInRange($this->start_date, $this->end_date)) {
-        //     $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda sudah atau sedang mengajukan cuti pada periode ini, sehingga tidak dapat mengajukan cuti.', type: 'warning');
-        //     return;
-        // }
+        // cek apakah ada cuti di periode ini
+        if ($checker->hasLeaveInRange($this->start_date, $this->end_date)) {
+            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda sudah atau sedang mengajukan cuti pada periode ini, sehingga tidak dapat mengajukan cuti.', type: 'warning');
+            return;
+        }
 
-        // // cek apakah telah melakukan izin hari ini
-        // if ($checker->hasPermissionInRange($this->start_date, $this->end_date)) {
-        //     $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda telah mengajukan izin hari ini. Jika terjadi kesalahan, silakan hubungi Admin.', type: 'danger');
-        //     return;
-        // }
+        // cek apakah telah melakukan izin hari ini
+        if ($checker->hasPermissionInRange($this->start_date, $this->end_date)) {
+            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda telah mengajukan izin hari ini. Jika terjadi kesalahan, silakan hubungi Admin.', type: 'danger');
+            return;
+        }
 
-        // // cek apakah telah melakukan presensi hari ini
-        // if ($checker->hasAttendanceInRange($this->start_date, $this->end_date)) {
-        //     $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda telah melakukan presensi hari ini, sehingga tidak dapat mengajukan cuti.', type: 'warning');
-        //     return;
-        // }
+        // cek apakah telah melakukan presensi hari ini
+        if ($checker->hasAttendanceInRange($this->start_date, $this->end_date)) {
+            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda telah melakukan presensi hari ini, sehingga tidak dapat mengajukan cuti.', type: 'warning');
+            return;
+        }
 
         // jika belum, simpan
         DB::transaction(function () use ($employee) {
@@ -68,9 +74,12 @@ new class extends Component {
     <flux:card size="md" class="bg-white dark:bg-zinc-900" x-cloak>
         <div x-on:click="$wire.showForm = !$wire.showForm" class="cursor-pointer">
             <flux:fieldset class="flex items-center justify-between">
-                <flux:text size="xl" level="2" class="text-zinc-800 dark:text-white font-medium">
-                    Formulir Pengajuan Cuti
-                </flux:text>
+                <div class="flex items-center gap-2">
+                    <flux:heading size="lg" class="font-semibold">Formulir Pengajuan Cuti</flux:heading>
+                    <flux:tooltip content="Sisa kuota cuti Anda">
+                        <flux:badge color="yellow" size="sm">{{ $this->leave_remaining }}</flux:badge>
+                    </flux:tooltip>
+                </div>
 
                 <flux:button size="sm" icon="chevron-down" variant="ghost" />
             </flux:fieldset>

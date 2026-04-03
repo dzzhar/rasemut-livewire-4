@@ -28,11 +28,12 @@ class Attendance extends Model
         'status' => AttendanceStatus::class
     ];
 
+    // history type and date for history log
     public function getHistoryTypeAttribute()
     {
         return $this->check_out !== null
-            ? 'Presensi Pulang'
-            : 'Presensi Masuk';
+            ? 'Check Out'
+            : 'Check In';
     }
 
     public function getHistoryDateAttribute()

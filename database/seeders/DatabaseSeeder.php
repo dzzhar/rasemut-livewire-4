@@ -19,31 +19,25 @@ class DatabaseSeeder extends Seeder
         Position::factory(5)->create();
         AttendanceSetting::factory()->create();
 
-        // =====================
-        // ADMIN
-        // =====================
         $admin = $this->createEmployeeUser(
-            'John Doe',
+            'Admin Satu',
             'EMP001',
-            'coba@gmail.com',
+            'admin@gmail.com',
             'admin'
         );
 
-        // =====================
-        // EMPLOYEE
-        // =====================
         $employee = $this->createEmployeeUser(
-            'Cucut',
+            'Karyawan Satu',
             'EMP002',
-            'cucut@gmail.com',
+            'employee@gmail.com',
             'employee'
         );
 
-        // Attendance
+        // attendance
         $this->generateAttendance($admin);
         $this->generateAttendance($employee);
 
-        // Permission & Leave hanya employee
+        // permission & leave hanya employee
         Permission::factory(10)->create([
             'employee_id' => $employee->id,
         ]);

@@ -19,6 +19,7 @@ class AttendanceSetting extends Model
         'longitude',
         'radius_attendance'
     ];
+    public $timestamps = false;
 
     protected $attributes = [
         'latitude' => -6.175392,

@@ -29,7 +29,8 @@ class FilamentServiceProvider extends ServiceProvider
         TextInput::configureUsing(function (TextInput $component): void {
             $component
                 ->extraInputAttributes(['required' => false])
-                ->validationAttribute(fn($component) => str($component->getLabel())->lower());;
+                ->validationAttribute(fn($component) => str($component->getLabel())->lower())
+                ->required();
         });
 
         Textarea::configureUsing(function (Textarea $component): void {
@@ -39,7 +40,10 @@ class FilamentServiceProvider extends ServiceProvider
         });
 
         Select::configureUsing(function (Select $component): void {
-            $component->native(false);
+            $component
+                ->native(false)
+                ->selectablePlaceholder(false)
+                ->required();
         });
     }
 }

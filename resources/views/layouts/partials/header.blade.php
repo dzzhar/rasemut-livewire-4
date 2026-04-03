@@ -1,5 +1,5 @@
 <flux:header sticky class="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
-    <div class="max-w-2xl! mx-auto w-full px-4 flex items-center">
+    <div class="max-w-2xl! mx-auto w-full flex items-center md:px-4">
         <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
         <flux:brand logo="{{ asset('images/logo.svg') }}" name="SISemut" alt="Logo RA Semut" class="max-lg:hidden" />

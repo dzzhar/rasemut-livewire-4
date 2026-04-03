@@ -40,7 +40,7 @@ class CheckerService
             ->exists();
     }
 
-    // validasi khusus untuk cuti
+    // special for leave validation
     public function hasLeaveInRange($start, $end): bool
     {
         return Leave::where('employee_id', $this->employeeId)

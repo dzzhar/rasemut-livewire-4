@@ -15,10 +15,13 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
      */
     public function update(User $user, array $input): void
     {
-        Validator::make($input, [
-            'fullname' => ['required', 'string', 'max:255'],
-            'employee_code' => ['required', 'string', 'max:255'],
-        ])->validateWithBag('updateProfileInformation');
+        Validator::make(
+            $input,
+            [
+                'fullname' => ['required', 'string', 'max:255'],
+                'employee_code' => ['required', 'string', 'max:255'],
+            ]
+        )->validateWithBag('updateProfileInformation');
 
         $user->employee()->updateOrCreate(
             ['user_id' => $user->id],

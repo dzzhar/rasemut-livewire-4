@@ -37,13 +37,13 @@ new class extends Component {
                 </flux:text>
             </div>
             <div>
-                <flux:heading>Presensi Masuk</flux:heading>
+                <flux:heading>Check In</flux:heading>
                 <flux:text class="mt-2 capitalize">
                     {{ $selected->check_in ? $selected->check_in . ' WIB' : '-' }}
                 </flux:text>
             </div>
             <div>
-                <flux:heading>Presensi Keluar</flux:heading>
+                <flux:heading>Check Out</flux:heading>
                 <flux:text class="mt-2 capitalize">
                     {{ $selected->check_out ? $selected->check_out . ' WIB' : '-' }}
                 </flux:text>

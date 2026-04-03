@@ -8,7 +8,7 @@
     {{-- header title n datepicker --}}
     <div>
         <flux:fieldset class="flex items-center justify-between gap-4">
-            <flux:text size="xl" level="2" class="text-zinc-800 dark:text-white font-medium">
+            <flux:text size="xl" level="2" class="text-zinc-800 dark:text-zinc-100 font-medium">
                 {{ $headerTitle }}
             </flux:text>
 
@@ -27,24 +27,24 @@
         @forelse ($this->history as $item)
             <div wire:click="showModal({{ $item->id }})"
                 class="bg-white dark:bg-zinc-900 border-0 {{ !$loop->last ? 'border-b border-zinc-100 dark:border-zinc-800' : '' }} rounded-none py-6 first:pt-0 last:pb-0 cursor-pointer">
+
                 <flux:heading size="lg" level="3"
-                    class="flex items-center gap-2 font-medium text-zinc-700 dark:text-zinc-300 capitalize">
-                    {{-- casts in model --}}
+                    class="flex items-center gap-2 font-medium text-zinc-700 dark:text-zinc-200 capitalize">
                     {{ $item->history_type }}
 
                     <flux:tooltip content="Detail" class="ml-auto">
                         <flux:icon.information-circle variant="outline"
-                            class="text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition size-4" />
+                            class="text-zinc-400 dark:text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition size-4" />
                     </flux:tooltip>
                 </flux:heading>
 
                 <div class="flex items-end justify-between mt-0 md:mt-2 gap-10">
                     <div class="min-w-0">
-                        <flux:text class="text-zinc-900 dark:text-zinc-100 font-medium">
+                        <flux:text class="text-zinc-800 dark:text-zinc-100 font-medium">
                             {{ $item->history_date ? $item->history_date->translatedFormat('l, d F Y') : '-' }}
                         </flux:text>
 
-                        <flux:text class="text-zinc-500 dark:text-zinc-400 text-sm hidden md:block truncate">
+                        <flux:text class="text-zinc-500 dark:text-zinc-500 text-sm hidden md:block truncate">
                             Keterangan: {{ ucfirst($item->description ?? '-') }}
                         </flux:text>
                     </div>
@@ -60,10 +60,11 @@
         @empty
             <div class="flex flex-col items-center justify-center text-center py-12">
                 <flux:heading size="lg" level="3"
-                    class="font-medium text-zinc-700 dark:text-zinc-300 capitalize">
+                    class="font-medium text-zinc-700 dark:text-zinc-200 capitalize">
                     Tidak ada riwayat
                 </flux:heading>
-                <flux:text class="mt-2 text-zinc-500 dark:text-zinc-400 max-w-sm">
+
+                <flux:text class="mt-2 text-zinc-500 dark:text-zinc-500 max-w-sm">
                     Belum terdapat aktivitas yang tersedia pada periode ini.
                 </flux:text>
             </div>
@@ -71,7 +72,9 @@
 
         @if ($this->history->count() < $this->totalHistory)
             <div class="flex justify-center mt-6">
-                <flux:button size="sm" wire:click="loadMore">Muat Lebih Banyak...</flux:button>
+                <flux:button size="sm" wire:click="loadMore">
+                    Muat Lebih Banyak...
+                </flux:button>
             </div>
         @endif
     </div>

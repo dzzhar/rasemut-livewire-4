@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     {{-- title page --}}
-    <title>403 | {{ config('app.name') }}</title>
+    <title>500 | {{ config('app.name') }}</title>
 
     {{-- scripts --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -19,16 +19,17 @@
         <div class="text-center max-w-lg">
 
             <h1
-                class="text-[90px] sm:text-[120px] md:text-[150px] font-extrabold text-orange-700 dark:text-orange-500 leading-none">
-                403
+                class="text-[90px] sm:text-[120px] md:text-[150px] font-extrabold text-red-700 dark:text-red-500 leading-none">
+                500
             </h1>
 
             <flux:heading size="lg" class="mt-4">
-                Anda tidak memiliki izin untuk mengakses halaman ini. <br>
-                Silakan hubungi administrator sistem apabila Anda memerlukan akses.
+                Terjadi kesalahan pada server. <br>
+                Silakan coba beberapa saat lagi atau hubungi administrator.
             </flux:heading>
 
-            <div class="mt-8">
+            <div class="mt-8 flex justify-center gap-3">
+                <flux:button onclick="location.reload()">Muat Ulang</flux:button>
                 <flux:button onclick="history.back()">Kembali</flux:button>
             </div>
 

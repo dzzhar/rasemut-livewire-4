@@ -31,7 +31,6 @@ class ManagePermissions extends ManageRecords
                     Select::make('permission_type')->label('Tipe Izin')->options([
                         'izin' => 'Izin',
                         'sakit' => 'Sakit',
-                        'lainnya' => 'Lainnya',
                     ])->placeholder('Semua Tipe Izin')
                 ])
                 ->modifyQueryUsing(function (Builder $query, array $data) {

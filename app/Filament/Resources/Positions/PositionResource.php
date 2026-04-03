@@ -34,8 +34,7 @@ class PositionResource extends Resource
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->label('Jabatan')
-                    ->required(),
+                    ->label('Jabatan'),
                 Textarea::make('description')
                     ->label('Keterangan')
                     ->autosize(),
