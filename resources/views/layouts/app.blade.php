@@ -23,6 +23,7 @@
     </flux:main>
 
     <livewire:action-modal />
+
     @fluxScripts
 </body>
 

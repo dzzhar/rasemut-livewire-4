@@ -30,6 +30,7 @@ new class extends Component {
         {{ ucfirst(Str::before(auth()->user()->employee?->fullname, ' ')) }} 👋
     </flux:heading>
 
+
     <livewire:widget-user lazy />
 
     <livewire:pages::attendance.create />

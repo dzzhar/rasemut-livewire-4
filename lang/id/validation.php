@@ -7,6 +7,7 @@ return [
     'string' => 'Kolom :attribute harus berupa teks.',
     'min' => [
         'string' => 'Kolom :attribute minimal :min karakter.',
+        'numeric' => 'Kolom :attribute minimal :min.',
     ],
     'max' => [
         'file' => 'Ukuran file :attribute maksimal :max KB.',

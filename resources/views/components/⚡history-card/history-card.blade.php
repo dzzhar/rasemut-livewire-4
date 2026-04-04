@@ -8,9 +8,7 @@
     {{-- header title n datepicker --}}
     <div>
         <flux:fieldset class="flex items-center justify-between gap-4">
-            <flux:text size="xl" level="2" class="text-zinc-800 dark:text-zinc-100 font-medium">
-                {{ $headerTitle }}
-            </flux:text>
+            <flux:heading size="lg" class="font-semibold">{{ $headerTitle }}</flux:heading>
 
             <flux:tooltip content="Filter berdasarkan tanggal">
                 <flux:input type="date" class="w-fit!" size="sm" icon:trailing="calendar"

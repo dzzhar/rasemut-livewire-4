@@ -11,6 +11,7 @@ class AttendanceSetting extends Model
 
     protected $table = 'attendance_settings';
     protected $fillable = [
+        'location',
         'check_in_setting',
         'check_out_setting',
         'leave_quota',
@@ -20,15 +21,6 @@ class AttendanceSetting extends Model
         'radius_attendance'
     ];
     public $timestamps = false;
-
-    protected $attributes = [
-        'latitude' => -6.175392,
-        'longitude' => 106.794952,
-        'radius_attendance' => 50,
-        'check_in_setting' => '08:00:00',
-        'check_out_setting' => '17:00:00',
-        'overtime_tolerance' => 5,
-    ];
 
     protected function setting(): AttendanceSetting
     {

@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('attendance_settings', function (Blueprint $table) {
             $table->id();
+            $table->text('location')->nullable();
             $table->time('check_in_setting');
             $table->time('check_out_setting');
             $table->integer('leave_quota');
