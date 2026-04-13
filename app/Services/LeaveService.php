@@ -47,7 +47,6 @@ class LeaveService
                         'body' => 'Sisa kuota cuti karyawan tidak mencukupi untuk menyetujui cuti ini.'
                     ];
                 }
-
                 $employee->leave_remaining -= $workingDays;
             }
 

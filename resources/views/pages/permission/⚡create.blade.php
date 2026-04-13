@@ -57,7 +57,7 @@ new class extends Component {
 
         // cek apakah ada cuti di periode ini
         if ($checker->hasLeaveToday(now())) {
-            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Izin', message: 'Anda sedang dalam periode cuti hari ini, sehingga tidak dapat melakukan presensi.', type: 'warning');
+            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Izin', message: 'Anda sedang dalam periode cuti hari ini, sehingga tidak dapat melakukan izin.', type: 'warning');
             return;
         }
 
@@ -157,7 +157,6 @@ new class extends Component {
 
                 <flux:textarea wire:model="description" label="Keterangan" placeholder="Keterangan izin anda..."
                     description="Wajib diisi jika tidak melampirkan bukti izin." resize="none" />
-
 
                 <flux:button variant="primary" color="blue" class="w-full" type="submit" wire:loading.attr="disabled"
                     wire:target="file_path">

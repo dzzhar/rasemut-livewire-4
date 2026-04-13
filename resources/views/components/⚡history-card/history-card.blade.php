@@ -1,5 +1,5 @@
 @placeholder
-    <flux:skeleton class="rounded-lg w-full h-[calc(100vh-160px)]" animate="shimmer" />
+    <flux:skeleton class="rounded-lg w-full h-72" animate="shimmer" />
 @endplaceholder
 
 <flux:card size="md"

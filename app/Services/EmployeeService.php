@@ -23,7 +23,6 @@ class EmployeeService
             return Employee::create([
                 'user_id' => $user->id,
                 'fullname' => $data['fullname'],
-                'employee_code' => $data['employee_code'],
                 'position_id' => $data['position_id'],
                 'leave_remaining' => AttendanceSetting::first()->leave_quota
             ]);
@@ -57,7 +56,6 @@ class EmployeeService
 
             $employee->update([
                 'fullname' => $data['fullname'],
-                'employee_code' => $data['employee_code'],
                 'position_id' => $data['position_id'],
             ]);
 

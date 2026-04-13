@@ -23,7 +23,7 @@ class AttendanceSettings extends Page implements HasForms
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMapPin;
     protected static ?string $navigationLabel = 'Pengaturan Presensi';
     protected ?string $heading = 'Pengaturan Presensi';
-    protected ?string $subheading = 'Atur jam kehadiran, lokasi, dan aturan absensi karyawan';
+    protected ?string $subheading = 'Pengaturan lokasi, jam kehadiran, kuota cuti, dan presensi karyawan';
     protected static string|UnitEnum|null $navigationGroup = "Master";
     protected static ?int $navigationSort = 3;
 

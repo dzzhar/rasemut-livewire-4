@@ -16,10 +16,10 @@ class LeaveExporter extends Exporter
     {
         return [
             ExportColumn::make('employee.fullname')->label('Nama Karyawan'),
-            ExportColumn::make('request_date')->label('Tanggal Pengajuan Cuti'),
+            ExportColumn::make('request_date')->label('Tanggal Pengajuan'),
             ExportColumn::make('leave_code')->label('Kode Cuti'),
-            ExportColumn::make('start_date')->label('Tanggal Mulai Cuti'),
-            ExportColumn::make('end_date')->label('Tanggal Akhir Cuti'),
+            ExportColumn::make('start_date')->label('Tanggal Mulai'),
+            ExportColumn::make('end_date')->label('Tanggal Akhir'),
             ExportColumn::make('status'),
             ExportColumn::make('description')->label('Keterangan'),
         ];

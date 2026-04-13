@@ -45,8 +45,6 @@ new class extends Component {
         }
     }
 
-    // $this->todayAttendance = $service->getToday();
-
     public function absensiButton()
     {
         if (is_null($this->latitude) || is_null($this->longitude)) {
@@ -60,6 +58,7 @@ new class extends Component {
         $this->dispatch('show-feedback', title: $result['title'], message: $result['message'], type: $result['type']);
         $this->refreshState($service);
         $this->dispatch('refresh-history');
+        $this->dispatch('refresh-widget');
     }
 
     #[On('set-location')]
@@ -72,21 +71,18 @@ new class extends Component {
 ?>
 
 
-<div>
+<div class="space-y-8">
+    <livewire:widget-user />
+
     @if ($isWorkingDay)
         <flux:card size="md" class="bg-white dark:bg-zinc-900 antialiased">
             <flux:fieldset class="flex items-center justify-between">
-                <div>
-                    <flux:heading size="lg" class="font-semibold">Presensi Hari Ini</flux:heading>
-                    <flux:text>{{ now()->translatedFormat('l, d F Y') }}</flux:text>
-                </div>
-
-                <flux:button size="sm" variant="primary" href="{{ route('history') }}" wire:navigate>
-                    Riwayat
-                </flux:button>
+                <flux:heading size="lg" class="font-semibold">Presensi Hari Ini</flux:heading>
+                <flux:text>{{ now()->translatedFormat('l, d F Y') }}</flux:text>
             </flux:fieldset>
 
-            <div class="pt-6 space-y-6">
+
+            <div class="pt-6 {{ $button ? 'space-y-6' : '' }}">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <livewire:attendance-card title="Check In" :time="$check_in" :key="'in-' . ($check_in ?? '0')" />
                     <livewire:attendance-card title="Check Out" :time="$check_out" :key="'out-' . ($check_out ?? '0')" />
@@ -100,3 +96,36 @@ new class extends Component {
         </flux:card>
     @endif
 </div>
+
+@script
+    <script>
+        let locationListener = null;
+
+        const getLocation = () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        $wire.dispatch('set-location', {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        });
+                    },
+                    (error) => {
+                        console.error('GPS Error:', error.message);
+                    }, {
+                        enableHighAccuracy: true
+                    }
+                );
+            }
+        };
+
+        getLocation();
+
+        if (locationListener) {
+            locationListener();
+        }
+        locationListener = $wire.on('get-location', () => {
+            getLocation();
+        });
+    </script>
+@endscript

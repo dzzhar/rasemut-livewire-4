@@ -39,14 +39,6 @@ class EmployeeResource extends Resource
                 TextInput::make('fullname')
                     ->label('Nama Lengkap')
                     ->placeholder('Masukkan nama lengkap'),
-                TextInput::make('employee_code')
-                    ->label('Nomor Karyawan')
-                    ->placeholder('Masukkan nomor karyawan')
-                    ->unique(
-                        table: 'employees',
-                        column: 'employee_code',
-                        ignorable: fn($record) => $record
-                    ),
                 Select::make('user_role')
                     ->label('Role')
                     ->options([
@@ -82,8 +74,6 @@ class EmployeeResource extends Resource
                     ->label('Nama Lengkap'),
                 TextEntry::make('user.email')
                     ->label('Email'),
-                TextEntry::make('employee_code')
-                    ->label('Nomor Karyawan'),
                 TextEntry::make('user.role')
                     ->label('Role')
                     ->badge()
@@ -122,9 +112,6 @@ class EmployeeResource extends Resource
             ->columns([
                 TextColumn::make('fullname')
                     ->label('Nama Lengkap')
-                    ->searchable(),
-                TextColumn::make('employee_code')
-                    ->label('Nomor Karyawan')
                     ->searchable(),
                 ToggleColumn::make('is_active')
                     ->label('Aktif')

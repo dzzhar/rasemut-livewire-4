@@ -28,7 +28,7 @@ class ManageEmployees extends ManageRecords
             ExportAction::make()
                 ->exporter(EmployeeExporter::class)
                 ->columnMapping(false)
-                ->fileName(fn() => 'izin-karyawan-' . now()->format('Ymd_His'))
+                ->fileName(fn() => 'rekap-karyawan-' . now()->format('Ymd_His'))
                 ->label('Ekspor Data')
 
                 ->modifyQueryUsing(function (Builder $query, array $data) {
@@ -79,19 +79,42 @@ class ManageEmployees extends ManageRecords
                             (
                                 (
                                     (SELECT COUNT(*) FROM attendances 
-                                     WHERE attendances.employee_id = employees.id 
-                                     AND status = 'hadir' 
-                                     AND attendance_date BETWEEN ? AND ?)
+                                    WHERE attendances.employee_id = employees.id 
+                                    AND status = 'hadir' 
+                                    AND attendance_date BETWEEN ? AND ?)
                                     +
                                     (SELECT COUNT(*) * 0.5 FROM attendances 
-                                     WHERE attendances.employee_id = employees.id 
-                                     AND status = 'tidak_lengkap' 
-                                     AND attendance_date BETWEEN ? AND ?)
+                                    WHERE attendances.employee_id = employees.id 
+                                    AND status = 'tidak_lengkap' 
+                                    AND attendance_date BETWEEN ? AND ?)
                                 )
                                 /
-                                NULLIF(?, 0)
+                                NULLIF(
+                                    (
+                                        ? - (
+                                            SELECT COALESCE(SUM(
+                                                DATEDIFF(LEAST(end_date, ?), GREATEST(start_date, ?)) + 1
+                                            ), 0)
+                                            FROM leaves
+                                            WHERE leaves.employee_id = employees.id
+                                            AND status = 'disetujui'
+                                            AND start_date <= ?
+                                            AND end_date >= ?
+                                        )
+                                    ), 0
+                                )
                             ) * 100 as attendance_rate
-                        ", [$start, $end, $start, $end, $totalDays])
+                            ", [
+                            $start,
+                            $end,
+                            $start,
+                            $end,
+                            $totalDays,
+                            $end,
+                            $start,
+                            $end,
+                            $start
+                        ])
                         ->when(
                             $data['role'] ?? null,
                             fn($q) => $q->whereHas('user', fn($user) => $user->where('role', $data['role']))
@@ -104,14 +127,14 @@ class ManageEmployees extends ManageRecords
                 ->schema([
                     DatePicker::make('start_period')->label('Periode Awal'),
                     DatePicker::make('end_period')->label('Periode Akhir'),
-
                     Select::make('is_active')
                         ->label('Status Aktif')
                         ->options([
                             '1' => 'Aktif',
                             '0' => 'Tidak Aktif',
                         ])
-                        ->placeholder('Semua Status'),
+                        ->placeholder('Semua Status')
+                        ->nullable(),
 
                     Select::make('role')
                         ->label('Role')
@@ -119,7 +142,8 @@ class ManageEmployees extends ManageRecords
                             'employee' => 'Karyawan',
                             'admin' => 'Admin',
                         ])
-                        ->placeholder('Semua Role'),
+                        ->placeholder('Semua Role')
+                        ->nullable(),
                 ])
         ];
     }

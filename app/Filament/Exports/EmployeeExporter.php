@@ -16,7 +16,6 @@ class EmployeeExporter extends Exporter
     {
         return [
             ExportColumn::make('fullname')->label('Nama'),
-            ExportColumn::make('employee_code')->label('Kode Karyawan'),
             ExportColumn::make('user.email')->label('Email'),
             ExportColumn::make('user.role')->label('Role'),
             ExportColumn::make('position.name')->label('Jabatan'),

@@ -9,7 +9,7 @@ use Livewire\Component;
 new class extends Component {
     public string $headerTitle;
 
-    public int $perPage = 10;
+    public int $perPage = 1;
     public $filterDate = null;
     public $min;
     public $max;

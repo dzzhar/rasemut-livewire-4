@@ -16,38 +16,62 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // =========================
+        // MASTER DATA
+        // =========================
         Position::factory(5)->create();
         AttendanceSetting::factory()->create();
 
+        // =========================
+        // USERS
+        // =========================
         $admin = $this->createEmployeeUser(
             'Admin Satu',
-            'EMP001',
             'admin@gmail.com',
             'admin'
         );
 
-        $employee = $this->createEmployeeUser(
+        $employee1 = $this->createEmployeeUser(
             'Karyawan Satu',
-            'EMP002',
             'employee@gmail.com',
             'employee'
         );
 
-        // attendance
-        $this->generateAttendance($admin);
-        $this->generateAttendance($employee);
+        $employee2 = $this->createEmployeeUser(
+            'Karyawan Dua',
+            'employee2@gmail.com',
+            'employee'
+        );
 
-        // permission & leave hanya employee
-        Permission::factory(10)->create([
-            'employee_id' => $employee->id,
+        // =========================
+        // ATTENDANCE (APRIL)
+        // =========================
+        $this->generateAttendance($admin, 4);
+        $this->generateAttendance($employee1, 4);
+        $this->generateAttendance($employee2, 4);
+
+        // =========================
+        // EMPLOYEE 1 (SEDIKIT DATA)
+        // =========================
+        Permission::factory()->count(10)->create([
+            'employee_id' => $employee1->id,
         ]);
 
-        Leave::factory(5)->create([
-            'employee_id' => $employee->id,
+        Leave::factory()->count(5)->create([
+            'employee_id' => $employee1->id,
+        ]);
+
+
+        Permission::factory()->count(800)->create([
+            'employee_id' => $employee2->id,
+        ]);
+
+        Leave::factory()->count(800)->create([
+            'employee_id' => $employee2->id,
         ]);
     }
 
-    private function createEmployeeUser($name, $code, $email, $role)
+    private function createEmployeeUser($name, $email, $role)
     {
         $user = User::factory()->create([
             'email' => $email,
@@ -58,17 +82,17 @@ class DatabaseSeeder extends Seeder
         return Employee::factory()->create([
             'user_id' => $user->id,
             'fullname' => $name,
-            'employee_code' => $code,
             'is_active' => true,
             'position_id' => Position::inRandomOrder()->first()->id,
         ]);
     }
 
-    private function generateAttendance($employee)
+    private function generateAttendance($employee, $month = 4)
     {
-        $startOfMonth = now()->startOfMonth();
+        $startOfMonth = now()->setMonth($month)->startOfMonth();
+        $daysInMonth = $startOfMonth->daysInMonth;
 
-        for ($i = 0; $i < 30; $i++) {
+        for ($i = 0; $i < $daysInMonth; $i++) {
             $date = $startOfMonth->copy()->addDays($i);
 
             Attendance::factory()->create([

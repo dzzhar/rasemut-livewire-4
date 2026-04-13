@@ -13,12 +13,12 @@ class PermissionFactory extends Factory
     public function definition()
     {
         return [
-            'permission_date' => $this->faker->dateTimeBetween('-1 years', 'now'),
+            'permission_date' => $this->faker->date(),
             'permission_type' => $this->faker->randomElement(['izin', 'sakit', 'lainnya']),
-            'description' => $this->faker->optional(0.6)->paragraph(1),
+            'description' => $this->faker->optional(0.6)->sentence(),
+            'file_path' => null,
+            'status' => 'pending',
             'employee_id' => Employee::factory(),
-            'created_at' => now(),
-            'updated_at' => now(),
         ];
     }
 }

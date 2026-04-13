@@ -63,7 +63,7 @@ new class extends Component {
 
         $this->dispatch('show-feedback', title: 'Cuti Diajukan!', message: 'Pengajuan cuti Anda berhasil dilakukan. Silakan menunggu konfirmasi dari Admin.');
 
-        $this->reset();
+        $this->reset(['start_date', 'end_date', 'description']);
         $this->dispatch('refresh-history');
     }
 };

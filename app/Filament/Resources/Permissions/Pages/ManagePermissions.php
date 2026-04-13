@@ -6,7 +6,6 @@ use App\Filament\Exports\PermissionExporter;
 use App\Filament\Resources\Permissions\PermissionResource;
 use Filament\Actions\ExportAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
-use Filament\Actions\Exports\Models\Export;
 use Filament\Resources\Pages\ManageRecords;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -23,31 +22,34 @@ class ManagePermissions extends ManageRecords
                 ->exporter(PermissionExporter::class)
                 ->columnMapping(false)
                 ->formats([ExportFormat::Csv])
-                ->fileName(fn(Export $export): string => "izin-karyawan-{$export->created_at}")
+                ->fileName(fn() => 'izin-karyawan-' . now()->format('Ymd_His'))
                 ->color('primary')
-                ->schema([
-                    DatePicker::make('start_period')->label('Periode Awal'),
-                    DatePicker::make('end_period')->label('Periode Akhir'),
-                    Select::make('permission_type')->label('Tipe Izin')->options([
-                        'izin' => 'Izin',
-                        'sakit' => 'Sakit',
-                    ])->placeholder('Semua Tipe Izin')
-                ])
                 ->modifyQueryUsing(function (Builder $query, array $data) {
+                    $start = $data['start_period'] ?? now()->startOfMonth()->toDateString();
+                    $end = $data['end_period'] ?? now()->endOfMonth()->toDateString();
+                    
                     return $query
                         ->when(
-                            $data['start_period'],
-                            fn($q) => $q->whereDate('permission_date', '>=', $data['start_period'])
+                            $start,
+                            fn($q) => $q->whereDate('permission_date', '>=', $start)
                         )
                         ->when(
-                            $data['end_period'],
-                            fn($q) => $q->whereDate('permission_date', '<=', $data['end_period'])
+                            $end,
+                            fn($q) => $q->whereDate('permission_date', '<=', $end)
                         )
                         ->when(
                             filled($data['permission_type'] ?? null),
                             fn($q) => $q->where('permission_type', $data['permission_type'])
                         );
                 })
+                ->schema([
+                    DatePicker::make('start_period')->label('Periode Awal'),
+                    DatePicker::make('end_period')->label('Periode Akhir'),
+                    Select::make('permission_type')->label('Tipe Izin')->options([
+                        'izin' => 'Izin',
+                        'sakit' => 'Sakit',
+                    ])->placeholder('Semua Tipe Izin')->nullable(),
+                ])
         ];
     }
 }

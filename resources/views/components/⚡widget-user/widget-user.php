@@ -1,141 +1,112 @@
 <?php
 
 use Livewire\Component;
+use Livewire\Attributes\On;
 use App\Models\Attendance;
 use App\Models\Permission;
 use App\Models\Leave;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 new class extends Component {
-    // for testing only
-    protected function getTestDate(): Carbon
+    public int $employeeId;
+
+    public int $totalDays = 0;
+    public int $totalAttendance = 0;
+    public int $totalPartial = 0;
+    public int $totalAbsent = 0;
+    public int $totalIzin = 0;
+
+    public float $attendanceScore = 0;
+
+    public int $scorePercent = 0;
+    public int $hadirPercent = 0;
+    public int $tidakLengkapPercent = 0;
+    public int $tidakHadirPercent = 0;
+    public int $izinPercent = 0;
+
+    public array $scoreColor = [];
+
+    public function mount(): void
     {
-        return Carbon::create(now()->year, 3); // maret
+        $this->employeeId = Auth::user()->employee->id;
+        $this->loadStats();
     }
 
-    public function getTotalDaysProperty()
+    #[On('refresh-widget')]
+    public function refresh(): void
     {
-        $date = $this->getTestDate();
+        $this->loadStats();
+    }
+
+    protected function loadStats(): void
+    {
+        $date = now();
+        $month = $date->month;
+        $year = $date->year;
+
+        // Hitung hari kerja bulan ini
         $start = $date->copy()->startOfMonth();
         $end = $date->copy()->endOfMonth();
-
         $weekdays = 0;
         while ($start->lte($end)) {
-            if ($start->isWeekday()) {
-                $weekdays++;
-            }
+            if ($start->isWeekday()) $weekdays++;
             $start->addDay();
         }
 
-        return $weekdays;
-    }
-
-    public function getTotalAttendanceProperty()
-    {
-        $date = $this->getTestDate();
-
-        return Attendance::whereMonth('attendance_date', $date->month)->whereYear('attendance_date', $date->year)->where('status', 'hadir')->whereRaw('DAYOFWEEK(attendance_date) NOT IN (1, 7)')->count();
-    }
-
-    // Tidak lengkap: bobot 0.5
-    public function getTotalPartialProperty()
-    {
-        $date = $this->getTestDate();
-
-        return Attendance::whereMonth('attendance_date', $date->month)
-            ->whereYear('attendance_date', $date->year)
-            ->where('status', 'tidak_lengkap') // sesuaikan dengan nilai di DB
-            ->whereRaw('DAYOFWEEK(attendance_date) NOT IN (1, 7)')
-            ->count();
-    }
-
-    // Tidak hadir: bobot 0
-    public function getTotalAbsentProperty()
-    {
-        $date = $this->getTestDate();
-
-        return Attendance::whereMonth('attendance_date', $date->month)->whereYear('attendance_date', $date->year)->where('status', 'tidak_hadir')->whereRaw('DAYOFWEEK(attendance_date) NOT IN (1, 7)')->count();
-    }
-
-    // Izin + Cuti digabung
-    public function getTotalIzinCutiProperty()
-    {
-        $date = $this->getTestDate();
-
-        $izin = Permission::whereMonth('permission_date', $date->month)->whereYear('permission_date', $date->year)->whereRaw('DAYOFWEEK(permission_date) NOT IN (1, 7)')->count();
-
-        $leaves = Leave::whereYear('start_date', $date->year)
-            ->whereMonth('start_date', $date->month)
+        // Hitung cuti untuk dikurangi dari totalDays
+        $leaves = Leave::where('employee_id', $this->employeeId)
+            ->whereYear('start_date', $year)
+            ->whereMonth('start_date', $month)
             ->where('status', 'disetujui')
             ->get(['start_date', 'end_date']);
 
         $monthStart = $date->copy()->startOfMonth();
-        $monthEnd = $date->copy()->endOfMonth();
-
+        $monthEnd   = $date->copy()->endOfMonth();
         $cuti = 0;
-        foreach ($leaves as $leave) {
-            $start = Carbon::parse($leave->start_date)->max($monthStart);
-            $end = Carbon::parse($leave->end_date)->min($monthEnd);
-            $current = $start->copy();
 
-            while ($current->lte($end)) {
-                if ($current->isWeekday()) {
-                    $cuti++;
-                }
+        foreach ($leaves as $leave) {
+            $current = Carbon::parse($leave->start_date)->max($monthStart);
+            $endDate = Carbon::parse($leave->end_date)->min($monthEnd);
+            while ($current->lte($endDate)) {
+                if ($current->isWeekday()) $cuti++;
                 $current->addDay();
             }
         }
 
-        return $izin + $cuti;
-    }
+        // Cuti mengurangi hari kerja efektif
+        $this->totalDays = $weekdays - $cuti;
 
-    // Skor berbobot untuk persentase kehadiran utama
-    public function getAttendanceScoreProperty()
-    {
-        return $this->totalAttendance * 1 + $this->totalPartial * 0.5;
-    }
+        // Ambil semua attendance sekaligus
+        $attendances = Attendance::where('employee_id', $this->employeeId)
+            ->whereMonth('attendance_date', $month)
+            ->whereYear('attendance_date', $year)
+            ->whereRaw('DAYOFWEEK(attendance_date) NOT IN (1, 7)')
+            ->get(['status']);
 
-    public function getHadirPercentProperty()
-    {
-        return $this->totalDays ? round(($this->totalAttendance / $this->totalDays) * 100) : 0;
-    }
+        $this->totalAttendance = $attendances->where('status', 'hadir')->count();
+        $this->totalPartial    = $attendances->where('status', 'tidak_lengkap')->count();
+        $this->totalAbsent     = $attendances->where('status', 'tidak_hadir')->count();
 
-    public function getTidakLengkapPercentProperty()
-    {
-        return $this->totalDays ? round(($this->totalPartial / $this->totalDays) * 100) : 0;
-    }
+        // Izin hanya informatif, tidak mempengaruhi score maupun totalDays
+        $this->totalIzin = Permission::where('employee_id', $this->employeeId)
+            ->whereMonth('permission_date', $month)
+            ->whereYear('permission_date', $year)
+            ->whereRaw('DAYOFWEEK(permission_date) NOT IN (1, 7)')
+            ->count();
 
-    public function getTidakHadirPercentProperty()
-    {
-        return $this->totalDays ? round(($this->totalAbsent / $this->totalDays) * 100) : 0;
-    }
+        // Score murni dari attendance
+        $this->attendanceScore     = $this->totalAttendance * 1 + $this->totalPartial * 0.5;
+        $this->scorePercent        = $this->totalDays ? round(($this->attendanceScore / $this->totalDays) * 100) : 0;
+        $this->hadirPercent        = $this->totalDays ? round(($this->totalAttendance / $this->totalDays) * 100) : 0;
+        $this->tidakLengkapPercent = $this->totalDays ? round(($this->totalPartial / $this->totalDays) * 100) : 0;
+        $this->tidakHadirPercent   = $this->totalDays ? round(($this->totalAbsent / $this->totalDays) * 100) : 0;
+        $this->izinPercent         = $this->totalDays ? round(($this->totalIzin / $this->totalDays) * 100) : 0;
 
-    public function getIzinCutiPercentProperty()
-    {
-        return $this->totalDays ? round(($this->totalIzinCuti / $this->totalDays) * 100) : 0;
-    }
-
-    // Persentase kehadiran berbobot untuk header
-    public function getScorePercentProperty()
-    {
-        return $this->totalDays ? round(($this->attendanceScore / $this->totalDays) * 100) : 0;
-    }
-
-    public function getScoreColorProperty(): array
-    {
-        return match (true) {
-            $this->scorePercent >= 80 => [
-                'class' => 'text-green-600 dark:text-green-400',
-                'color' => 'green',
-            ],
-            $this->scorePercent >= 50 => [
-                'class' => 'text-yellow-600 dark:text-yellow-400',
-                'color' => 'yellow',
-            ],
-            default => [
-                'class' => 'text-red-600 dark:text-red-400',
-                'color' => 'red',
-            ],
+        $this->scoreColor = match (true) {
+            $this->scorePercent >= 80 => ['class' => 'text-green-600 dark:text-green-400', 'color' => 'green'],
+            $this->scorePercent >= 50 => ['class' => 'text-yellow-600 dark:text-yellow-400', 'color' => 'yellow'],
+            default                   => ['class' => 'text-red-600 dark:text-red-400', 'color' => 'red'],
         };
     }
 };

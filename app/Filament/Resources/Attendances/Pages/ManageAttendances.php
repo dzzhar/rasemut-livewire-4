@@ -23,14 +23,17 @@ class ManageAttendances extends ManageRecords
                 ->fileName(fn() => 'presensi-karyawan-' . now()->format('Ymd_His'))
                 ->color('primary')
                 ->modifyQueryUsing(function (Builder $query, array $data) {
+                    $start = $data['start_period'] ?? now()->startOfMonth()->toDateString();
+                    $end = $data['end_period'] ?? now()->endOfMonth()->toDateString();
+
                     return $query
                         ->when(
-                            $data['start_period'] ?? null,
-                            fn($q) => $q->whereDate('attendance_date', '>=', $data['start_period'])
+                            $start ?? null,
+                            fn($q) => $q->whereDate('attendance_date', '>=', $start)
                         )
                         ->when(
-                            $data['end_period'] ?? null,
-                            fn($q) => $q->whereDate('attendance_date', '<=', $data['end_period'])
+                            $end ?? null,
+                            fn($q) => $q->whereDate('attendance_date', '<=', $end)
                         )
                         ->when(
                             filled($data['status'] ?? null),
@@ -44,7 +47,7 @@ class ManageAttendances extends ManageRecords
                         'hadir' => 'Hadir',
                         'tidak_hadir' => 'Tidak Hadir',
                         'tidak_lengkap' => 'Tidak Lengkap',
-                    ])->placeholder('Semua Status'),
+                    ])->placeholder('Semua Status')->nullable(),
                 ])
         ];
     }

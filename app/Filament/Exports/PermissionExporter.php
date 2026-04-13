@@ -18,6 +18,9 @@ class PermissionExporter extends Exporter
             ExportColumn::make('employee.fullname')->label('Nama Karyawan'),
             ExportColumn::make('permission_date')->label('Tanggal Izin'),
             ExportColumn::make('permission_type')->label('Tipe Izin'),
+            ExportColumn::make('file_path')
+                ->label('File Pendukung')
+                ->formatStateUsing(fn($state) => $state ? config('app.url') . '/storage/' . $state : '-'),
             ExportColumn::make('status'),
             ExportColumn::make('description')->label('Keterangan'),
         ];

@@ -20,19 +20,21 @@ class ManageLeaves extends ManageRecords
             ExportAction::make()
                 ->exporter(LeaveExporter::class)
                 ->columnMapping(false)
-                ->fileName(fn() => 'karyawan-' . now()->format('Ymd_His'))
+                ->fileName(fn() => 'cuti-karyawan-' . now()->format('Ymd_His'))
                 ->color('primary')
                 ->modifyQueryUsing(function (Builder $query, array $data) {
+                    // export period
+                    $start = $data['start_period'] ?? now()->startOfMonth()->toDateString();
+                    $end = $data['end_period'] ?? now()->endOfMonth()->toDateString();
+
                     return $query
-                        // menampilkan data yang masih cuti setelah atau pada tanggal mulai yang dipilih
                         ->when(
-                            $data['start_period'] ?? null,
-                            fn($q) => $q->whereDate('end_date', '>=', $data['start_period'])
+                            $start,
+                            fn($q) => $q->whereDate('end_date', '>=', $start)
                         )
-                        // menampilkan data yang sudah cuti sebelum atau pada tanggal selesai yang dipilih
                         ->when(
-                            $data['end_periode'] ?? null,
-                            fn($q) => $q->whereDate('start_date', '<=', $data['end_periode'])
+                            $end,
+                            fn($q) => $q->whereDate('start_date', '<=', $end)
                         )
                         ->when(
                             filled($data['status'] ?? null),
@@ -41,12 +43,12 @@ class ManageLeaves extends ManageRecords
                 })
                 ->schema([
                     DatePicker::make('start_period')->label('Periode Awal'),
-                    DatePicker::make('end_periode')->label('Periode Akhir'),
+                    DatePicker::make('end_period')->label('Periode Akhir'),
                     Select::make('status')->options([
                         'pending' => 'Pending',
                         'disetujui' => 'Disetujui',
                         'ditolak' => 'Ditolak',
-                    ])->placeholder('Semua Status')
+                    ])->placeholder('Semua Status')->nullable()
                 ])
         ];
     }

@@ -35,13 +35,15 @@
                 </flux:navmenu.item>
 
                 <flux:navmenu.separator />
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <flux:navmenu.item as="button" type="submit" icon="arrow-right-start-on-rectangle"
-                        class="text-zinc-800 dark:text-white cursor-pointer">
-                        Logout
-                    </flux:navmenu.item>
-                </form>
+                <div x-data={loading:false}>
+                    <form method="POST" action="{{ route('logout') }}" @submit="loading = true">
+                        @csrf
+                        <flux:navmenu.item as="button" type="submit" icon="arrow-right-start-on-rectangle"
+                            class="text-zinc-800 dark:text-white cursor-pointer" x-bind:disabled="loading">
+                            Logout
+                        </flux:navmenu.item>
+                    </form>
+                </div>
             </flux:navmenu>
         </flux:dropdown>
     </div>
