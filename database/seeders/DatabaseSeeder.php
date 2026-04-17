@@ -16,89 +16,73 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // =========================
-        // MASTER DATA
-        // =========================
-        Position::factory(5)->create();
+        Position::factory(2)->create();
         AttendanceSetting::factory()->create();
 
-        // =========================
-        // USERS
-        // =========================
-        $admin = $this->createEmployeeUser(
-            'Admin Satu',
-            'admin@gmail.com',
-            'admin'
-        );
-
-        $employee1 = $this->createEmployeeUser(
-            'Karyawan Satu',
-            'employee@gmail.com',
-            'employee'
-        );
-
-        $employee2 = $this->createEmployeeUser(
-            'Karyawan Dua',
-            'employee2@gmail.com',
-            'employee'
-        );
-
-        // =========================
-        // ATTENDANCE (APRIL)
-        // =========================
-        $this->generateAttendance($admin, 4);
-        $this->generateAttendance($employee1, 4);
-        $this->generateAttendance($employee2, 4);
-
-        // =========================
-        // EMPLOYEE 1 (SEDIKIT DATA)
-        // =========================
-        Permission::factory()->count(10)->create([
-            'employee_id' => $employee1->id,
-        ]);
-
-        Leave::factory()->count(5)->create([
-            'employee_id' => $employee1->id,
-        ]);
-
-
-        Permission::factory()->count(800)->create([
-            'employee_id' => $employee2->id,
-        ]);
-
-        Leave::factory()->count(800)->create([
-            'employee_id' => $employee2->id,
-        ]);
+        $this->createEmployeeUser('Admin', 'admin@gmail.com', ['employee', 'admin']);
+        $this->createEmployeeUser('Guru Satu', 'guru1@gmail.com', 'employee');
+        $this->createEmployeeUser('Guru Dua', 'guru2@gmail.com', 'employee');
+        $this->createEmployeeUser('Guru Tiga', 'guru3@gmail.com', 'employee');
+        $this->createEmployeeUser('Guru Empat', 'guru4@gmail.com', 'employee');
+        $this->createEmployeeUser('Guru Lima', 'guru5@gmail.com', 'employee');
+        $this->createEmployeeUser('Guru Enam', 'guru6@gmail.com', 'employee');
+        $this->createEmployeeUser('Guru Tujuh', 'guru7@gmail.com', 'employee');
+        $this->createEmployeeUser('Guru Delapan', 'guru8@gmail.com', 'employee');
     }
 
-    private function createEmployeeUser($name, $email, $role)
+    private function createEmployeeUser($name, $email, array|string $roles)
     {
         $user = User::factory()->create([
             'email' => $email,
-            'role' => $role,
+            'roles' => is_array($roles) ? $roles : [$roles],
+            'is_active' => true,
+            'last_activity' => now(),
             'password' => Hash::make('password'),
         ]);
 
         return Employee::factory()->create([
             'user_id' => $user->id,
             'fullname' => $name,
-            'is_active' => true,
             'position_id' => Position::inRandomOrder()->first()->id,
         ]);
     }
 
-    private function generateAttendance($employee, $month = 4)
+    private function generateFullMonthData($employee, $month)
     {
-        $startOfMonth = now()->setMonth($month)->startOfMonth();
-        $daysInMonth = $startOfMonth->daysInMonth;
+        $date = now()->setMonth($month)->startOfMonth();
+        $daysInMonth = $date->daysInMonth;
 
         for ($i = 0; $i < $daysInMonth; $i++) {
-            $date = $startOfMonth->copy()->addDays($i);
-
-            Attendance::factory()->create([
-                'employee_id' => $employee->id,
-                'attendance_date' => $date->toDateString(),
-            ]);
+            if (!$date->isWeekend()) {
+                if ($date->day <= 15) {
+                    Attendance::factory()->create([
+                        'employee_id' => $employee->id,
+                        'attendance_date' => $date->toDateString(),
+                        'check_in' => $date->copy()->setTime(8, 0, 0),
+                        'check_out' => $date->copy()->setTime(17, 0, 0),
+                        'status' => 'hadir',
+                    ]);
+                } elseif ($date->day <= 20) {
+                    Permission::factory()->create([
+                        'employee_id' => $employee->id,
+                        'permission_date' => $date->toDateString(),
+                        'permission_type' => 'sakit',
+                        'description' => 'Izin keperluan keluarga',
+                        'status' => 'izin',
+                    ]);
+                } else {
+                    Leave::factory()->create([
+                        'employee_id' => $employee->id,
+                        'request_date' => $date->toDateString(),
+                        'leave_code' => 'CT',
+                        'start_date' => $date->toDateString(),
+                        'end_date' => $date->toDateString(),
+                        'status' => 'disetujui',
+                        'description' => 'Cuti Tahunan',
+                    ]);
+                }
+            }
+            $date->addDay();
         }
     }
 }

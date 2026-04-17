@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -23,17 +22,23 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(LoginResponse::class, function () {
-            return new class implements LoginResponse {
+        $this->app->singleton(\Laravel\Fortify\Contracts\LoginResponse::class, function () {
+            return new class implements \Laravel\Fortify\Contracts\LoginResponse {
                 public function toResponse($request)
                 {
-                    return redirect()->to(
-                        match ($request->user()->role) {
-                            'admin' => '/admin',
-                            'employee' => '/',
-                            default => '/login',
-                        }
-                    );
+                    $user = $request->user();
+                    $roles = $user->roles ?? [];
+
+                    // Prioritaskan admin jika memiliki lebih dari satu role
+                    if (in_array('employee', $roles)) {
+                        return redirect()->to('/');
+                    }
+
+                    if (in_array('admin', $roles)) {
+                        return redirect()->to('/admin/attendances');
+                    }
+
+                    return redirect()->to('/login');
                 }
             };
         });
@@ -68,7 +73,7 @@ class FortifyServiceProvider extends ServiceProvider
                 ]);
             }
 
-            if ($user->employee->is_active != 1) {
+            if ($user->is_active != 1) {
                 throw ValidationException::withMessages([
                     'email' => 'Akun Anda tidak aktif. Silakan hubungi admin.',
                 ]);

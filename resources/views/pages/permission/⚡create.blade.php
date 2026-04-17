@@ -9,6 +9,7 @@ use Livewire\Component;
 use App\Services\CheckerService;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use Flux\Flux;
 
 new class extends Component {
     use WithFileUploads;
@@ -31,7 +32,7 @@ new class extends Component {
 
     #[Validate('required')]
     public $permission_type = '';
-    #[Validate('nullable|image|max:5120|mimes:jpg,jpeg,png')]
+    #[Validate('required_if:permission_type,sakit|nullable|image|max:5120|mimes:jpg,jpeg,png')]
     public $file_path;
     #[Validate('required_without:file_path')]
     public $description;
@@ -51,19 +52,19 @@ new class extends Component {
 
         // cek apakah telah mengajukan izin hari ini
         if ($checker->hasPermissionToday(now())) {
-            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Izin', message: 'Anda telah mengajukan izin hari ini. Jika terjadi kesalahan, silakan hubungi Admin.', type: 'danger');
+            FLux::toast(heading: 'Gagal Mengajukan Izin', text: 'Anda telah mengajukan izin hari ini. Jika terjadi kesalahan, silakan hubungi Admin.', variant: 'danger');
             return;
         }
 
         // cek apakah ada cuti di periode ini
         if ($checker->hasLeaveToday(now())) {
-            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Izin', message: 'Anda sedang dalam periode cuti hari ini, sehingga tidak dapat melakukan izin.', type: 'warning');
+            FLux::toast(heading: 'Gagal Mengajukan Izin', text: 'Anda sedang dalam periode cuti hari ini, sehingga tidak dapat melakukan izin.', variant: 'warning');
             return;
         }
 
         // cek apakah telah melakukan presensi hari ini
         if ($checker->hasAttendanceToday(now())) {
-            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Izin', message: 'Anda telah melakukan presensi hari ini, sehingga tidak dapat mengajukan izin.', type: 'warning');
+            FLux::toast(heading: 'Gagal Mengajukan Izin', text: 'Anda telah melakukan presensi hari ini, sehingga tidak dapat mengajukan izin.', variant: 'warning');
             return;
         }
 
@@ -97,7 +98,7 @@ new class extends Component {
             ]);
         });
 
-        $this->dispatch('show-feedback', title: 'Izin Diajukan!', message: 'Pengajuan izin Anda hari ini berhasil dilakukan.');
+        FLux::toast(heading: 'Izin Diajukan!', text: 'Pengajuan izin Anda hari ini berhasil dilakukan.', variant: 'success', duration: 3000);
 
         $this->reset(['permission_type', 'file_path', 'description']);
         $this->dispatch('refresh-history');

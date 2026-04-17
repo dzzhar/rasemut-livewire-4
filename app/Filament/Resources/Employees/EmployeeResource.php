@@ -41,10 +41,19 @@ class EmployeeResource extends Resource
                     ->placeholder('Masukkan nama lengkap'),
                 Select::make('user_role')
                     ->label('Role')
+                    ->multiple()
                     ->options([
                         'admin' => 'Admin',
                         'employee' => 'Karyawan'
-                    ]),
+                    ])
+                    ->searchable(false)
+                    ->afterStateUpdated(function ($state, $set, $record) {
+                        if ($record?->user?->hasActiveSession()) {
+                            if (!in_array('admin', $state)) {
+                                $set('user_role', array_merge($state, ['admin']));
+                            }
+                        }
+                    }),
                 Select::make('position_id')
                     ->relationship('position', 'name')
                     ->label('Jabatan'),
@@ -74,14 +83,14 @@ class EmployeeResource extends Resource
                     ->label('Nama Lengkap'),
                 TextEntry::make('user.email')
                     ->label('Email'),
-                TextEntry::make('user.role')
+                TextEntry::make('user.roles')
                     ->label('Role')
                     ->badge()
                     ->formatStateUsing(fn($state) => $state === 'admin' ? 'admin' : 'karyawan')
                     ->color(fn($state) => $state === 'admin' ? 'success' : 'primary'),
                 TextEntry::make('position.name')
                     ->label('Jabatan'),
-                TextEntry::make('is_active')
+                TextEntry::make('user.is_active')
                     ->label('Status')
                     ->badge()
                     ->formatStateUsing(fn($state) => $state === 0 ? 'nonaktif' : 'aktif')
@@ -104,7 +113,7 @@ class EmployeeResource extends Resource
                     ->leftJoin('users', 'employees.user_id', '=', 'users.id')
                     ->leftJoin('sessions', 'users.id', '=', 'sessions.user_id')
                     ->orderByRaw('CASE WHEN sessions.user_id IS NOT NULL THEN 0 ELSE 1 END')
-                    ->orderBy('employees.is_active', 'desc')
+                    ->orderBy('users.is_active', 'desc')
                     ->orderBy('employees.fullname', 'asc')
                     ->select('employees.*')
                     ->groupBy('employees.id');
@@ -113,7 +122,7 @@ class EmployeeResource extends Resource
                 TextColumn::make('fullname')
                     ->label('Nama Lengkap')
                     ->searchable(),
-                ToggleColumn::make('is_active')
+                ToggleColumn::make('user.is_active')
                     ->label('Aktif')
                     ->disabled(fn($record) => $record->user?->hasActiveSession())
                     ->tooltip(
@@ -124,12 +133,6 @@ class EmployeeResource extends Resource
                     ),
                 TextColumn::make('position.name')
                     ->label('Jabatan'),
-                TextColumn::make('user.role')
-                    ->label('Role')
-                    ->badge()
-                    ->formatStateUsing(fn($state) => $state === 'admin' ? 'admin' : 'karyawan')
-                    ->color(fn($state) => $state === 'admin' ? 'success' : 'primary')
-                    ->alignCenter(),
             ])
             ->recordActions([
                 ViewAction::make(),
@@ -138,7 +141,7 @@ class EmployeeResource extends Resource
                         'fullname' => $record->fullname,
                         'employee_code' => $record->employee_code,
                         'user_email' => $record->user->email,
-                        'user_role' => $record->user->role,
+                        'user_role' => $record->user->roles ?? [],
                     ])
                     ->using(
                         fn(Employee $record, array $data) => app(EmployeeService::class)->update($record, $data)

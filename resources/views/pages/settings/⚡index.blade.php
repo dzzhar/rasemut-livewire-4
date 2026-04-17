@@ -51,7 +51,8 @@ new #[Title('Pengaturan')] class extends Component {
     <div class="flex flex-col lg:flex-row gap-4 lg:gap-6">
         <div class="w-80">
             <flux:heading size="lg">Profil</flux:heading>
-            <flux:subheading>Perubahan profil Anda akan tercatat dan dapat dilihat oleh admin.</flux:subheading>
+            <flux:subheading>Perubahan profil Anda akan tercatat dan dapat dilihat oleh admin.
+            </flux:subheading>
         </div>
 
         @island(name: 'profile')

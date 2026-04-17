@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Services\CheckerService;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
+use Flux\Flux;
 use Carbon\Carbon;
 
 new class extends Component {
@@ -33,19 +34,19 @@ new class extends Component {
 
         // cek apakah ada cuti di periode ini
         if ($checker->hasLeaveInRange($this->start_date, $this->end_date)) {
-            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda sudah atau sedang mengajukan cuti pada periode ini, sehingga tidak dapat mengajukan cuti.', type: 'warning');
+            Flux::toast(heading: 'Gagal Mengajukan Cuti', text: 'Anda sudah atau sedang mengajukan cuti pada periode ini, sehingga tidak dapat mengajukan cuti.', variant: 'warning');
             return;
         }
 
         // cek apakah telah melakukan izin hari ini
         if ($checker->hasPermissionInRange($this->start_date, $this->end_date)) {
-            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda telah mengajukan izin hari ini. Jika terjadi kesalahan, silakan hubungi Admin.', type: 'danger');
+            Flux::toast(heading: 'Gagal Mengajukan Cuti', text: 'Anda telah mengajukan izin hari ini. Jika terjadi kesalahan, silakan hubungi Admin.', variant: 'danger');
             return;
         }
 
         // cek apakah telah melakukan presensi hari ini
         if ($checker->hasAttendanceInRange($this->start_date, $this->end_date)) {
-            $this->dispatch('show-feedback', title: 'Gagal Mengajukan Cuti', message: 'Anda telah melakukan presensi hari ini, sehingga tidak dapat mengajukan cuti.', type: 'warning');
+            Flux::toast(heading: 'Gagal Mengajukan Cuti', text: 'Anda telah melakukan presensi hari ini, sehingga tidak dapat mengajukan cuti.', variant: 'warning');
             return;
         }
 
@@ -61,7 +62,7 @@ new class extends Component {
             ]);
         });
 
-        $this->dispatch('show-feedback', title: 'Cuti Diajukan!', message: 'Pengajuan cuti Anda berhasil dilakukan. Silakan menunggu konfirmasi dari Admin.');
+        Flux::toast(heading: 'Cuti Diajukan!', text: 'Pengajuan cuti Anda berhasil dilakukan. Silakan menunggu konfirmasi dari Admin.', variant: 'success', duration: 3000);
 
         $this->reset(['start_date', 'end_date', 'description']);
         $this->dispatch('refresh-history');

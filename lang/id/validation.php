@@ -4,6 +4,7 @@ return [
     // validation messages
     'required' => 'Kolom :attribute wajib diisi.',
     'required_without' => 'Kolom :attribute wajib diisi jika :values tidak diisi.',
+    'required_if' => 'Kolom :attribute wajib diisi jika :other :value.',
     'string' => 'Kolom :attribute harus berupa teks.',
     'min' => [
         'string' => 'Kolom :attribute minimal :min karakter.',

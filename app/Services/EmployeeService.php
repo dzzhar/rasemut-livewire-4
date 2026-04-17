@@ -17,7 +17,7 @@ class EmployeeService
             $user = User::create([
                 'email' => $data['user_email'],
                 'password' => bcrypt($data['user_password']),
-                'role' => $data['user_role']
+                'roles' => $data['user_role'],
             ]);
 
             return Employee::create([
@@ -45,7 +45,7 @@ class EmployeeService
 
             $user = [
                 'email' => $data['user_email'],
-                'role' => $data['user_role'],
+                'roles' => $data['user_role'],
             ];
 
             if (!empty($data['user_password'])) {

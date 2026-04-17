@@ -11,5 +11,7 @@ Schedule::command('app:update-attendance-status') // update attendance status ev
     ->weekdays()
     ->dailyAt('23:59')
     ->timezone('Asia/Jakarta');
+Schedule::command('app:deactivate-inactive-users') // deactivate user if not active for 5 working days
+    ->dailyAt('00:38'); 
 
 // jalankan: php artisan schedule:work

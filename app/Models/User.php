@@ -9,48 +9,59 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable implements FilamentUser, HasName
 {
     use HasFactory, Notifiable;
 
     protected $fillable = [
-        'role',
+        'roles',
         'email',
         'password',
+        'is_active',
+        'last_activity',
     ];
 
     protected $hidden = [
         'password',
-        'remember_token',
     ];
 
     protected function casts(): array
     {
         return [
             'password' => 'hashed',
+            'roles' => 'array',
         ];
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return in_array($role, $this->roles ?? []);
+    }
+
+    public function hasAnyRole(array $roles): bool
+    {
+        return !empty(array_intersect($roles, $this->roles ?? []));
     }
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->role === 'admin';
+        return in_array('admin', $this->roles ?? []);
     }
 
     public function getFilamentName(): string
     {
         return $this->employee?->fullname ?? $this->email;
     }
+
     public function hasActiveSession(): bool
     {
-        if ($this->role !== 'admin') {
+        if (!in_array('admin', $this->roles ?? [])) {
             return false;
         }
 
-        return DB::table('sessions')
-            ->where('user_id', $this->id)
-            ->exists();
+        return $this->last_activity &&
+            now()->diffInMinutes($this->last_activity) < 5;
     }
 
     public function employee(): HasOne

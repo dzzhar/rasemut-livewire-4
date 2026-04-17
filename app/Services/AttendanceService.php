@@ -35,24 +35,6 @@ class AttendanceService
         return DB::transaction(function () use ($userLatitude, $userLongitude) {
             $now = now();
 
-            // if theres a leave today, block attendance
-            if ($this->checker->hasLeaveToday($now)) {
-                return [
-                    'title' => 'Presensi Gagal',
-                    'message' => 'Anda sedang cuti hari ini.',
-                    'type' => 'warning',
-                ];
-            }
-
-            // if theres a permission today, block attendance
-            if ($this->checker->hasPermissionToday($now)) {
-                return [
-                    'title' => 'Presensi Gagal',
-                    'message' => 'Anda telah mengajukan izin hari ini.',
-                    'type' => 'warning',
-                ];
-            }
-
             // calculate distance between user location and school location
             $distance = $this->calculateDistance(
                 $userLatitude,
@@ -64,9 +46,9 @@ class AttendanceService
             // if distance is greater than radius, block attendance
             if ($distance > $this->setting->radius_attendance) {
                 return [
-                    'title' => 'Diluar Jangkauan',
-                    'message' => "Jarak Anda " . round($distance) . "m dari sekolah. Maksimal radius adalah {$this->setting->radius_attendance} m.",
-                    'type' => 'error',
+                    'heading' => 'Diluar Jangkauan',
+                    'text' => "Jarak Anda " . round($distance) . " m dari sekolah. Maksimal radius adalah {$this->setting->radius_attendance} m.",
+                    'variant' => 'error',
                 ];
             }
 
@@ -82,12 +64,32 @@ class AttendanceService
                 $this->doCheckOut($attendance, $now);
             }
 
+
             return [
-                'title' => 'Presensi Berhasil!',
-                'message' => 'Presensi Anda berhasil dilakukan.',
-                'type' => 'success'
+                'heading' => 'Presensi Berhasil!',
+                'text' => 'Presensi Anda berhasil dilakukan.',
+                'variant' => 'success'
             ];
         });
+    }
+
+    public function canAttendToday(): ?array
+    {
+        $now = now();
+
+        return $this->checker->hasLeaveToday($now)
+            ? [
+                'heading' => 'Presensi Gagal',
+                'text' => 'Sedang dalam periode cuti',
+                'variant' => 'error'
+            ]
+            : ($this->checker->hasPermissionToday($now)
+                ? [
+                    'heading' => 'Presensi Gagal',
+                    'text' => 'Telah mengajukan izin',
+                    'variant' => 'error'
+                ]
+                : null);
     }
 
     // handle check in logic

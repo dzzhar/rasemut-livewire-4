@@ -19,14 +19,13 @@
             aria-label="Toggle dark mode" class="mr-2" />
 
         <flux:dropdown align="end">
-            <flux:profile avatar:name="{{ auth()->user()->employee?->fullname ?? ' ' }}" />
+            <flux:profile initials="{{ strtoupper(substr(auth()->user()->employee->fullname, 0, 2)) }}"
+                circle="true" />
 
             <flux:navmenu class="max-w-48">
                 <div class="px-2 py-1.5">
                     <flux:text size="sm">Masuk sebagai</flux:text>
-                    <flux:heading class="mt-1! truncate">
-                        {{ auth()->user()->employee->fullname ?? auth()->user()->email }}
-                    </flux:heading>
+                    <flux:heading class="mt-1! truncate">{{ auth()->user()->email }}</flux:heading>
                 </div>
 
                 <flux:navmenu.separator />

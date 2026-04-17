@@ -127,7 +127,7 @@ class ManageEmployees extends ManageRecords
                 ->schema([
                     DatePicker::make('start_period')->label('Periode Awal'),
                     DatePicker::make('end_period')->label('Periode Akhir'),
-                    Select::make('is_active')
+                    Select::make('user.is_active')
                         ->label('Status Aktif')
                         ->options([
                             '1' => 'Aktif',

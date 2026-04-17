@@ -6,6 +6,7 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use Carbon\Carbon;
 use App\Models\Attendance;
+use Flux\Flux;
 
 new class extends Component {
     public ?string $check_in = null;
@@ -21,8 +22,15 @@ new class extends Component {
     public function mount()
     {
         $this->employeeId = Auth::user()->employee->id;
+
         $service = new AttendanceService($this->employeeId);
         $this->isWorkingDay = $service->isWorkingDay(now());
+        $check = $service->canAttendToday();
+
+        if ($check) {
+            return $check;
+        }
+
         $this->refreshState($service);
     }
 
@@ -47,15 +55,17 @@ new class extends Component {
 
     public function absensiButton()
     {
+        $service = new AttendanceService($this->employeeId);
+
+        // check for location
         if (is_null($this->latitude) || is_null($this->longitude)) {
-            $this->dispatch('show-feedback', title: 'Lokasi belum ditemukan', message: 'Mohon tunggu GPS aktif lalu coba lagi.', type: 'warning');
+            Flux::toast(heading: 'Lokasi Tidak Ditemukan', text: 'Mohon tunggu GPS aktif lalu coba lagi.', variant: 'warning', duration: 3000);
             return;
         }
 
-        $service = new AttendanceService($this->employeeId);
         $result = $service->handleAttendance($this->latitude, $this->longitude);
+        Flux::toast(heading: $result['heading'], text: $result['text'], variant: $result['variant'], duration: 3000);
 
-        $this->dispatch('show-feedback', title: $result['title'], message: $result['message'], type: $result['type']);
         $this->refreshState($service);
         $this->dispatch('refresh-history');
         $this->dispatch('refresh-widget');

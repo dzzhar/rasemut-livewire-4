@@ -11,7 +11,6 @@ return new class extends Migration
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
             $table->string('fullname', 256)->index();
-            $table->boolean('is_active')->default(true);
             $table->integer('leave_remaining');
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('position_id')->nullable()->constrained('positions')->nullOnDelete();
