@@ -35,8 +35,10 @@ new #[Layout('layouts::auth')] class extends Component {};
     </div>
 
     <div class="flex-1 p-4 max-lg:hidden">
-        <div class="text-white relative rounded-lg h-full w-full bg-zinc-900 flex flex-col items-start justify-end p-16"
-            style="background-image: url('https://picsum.photos/200/300'); background-size: cover">
+        <div
+            class="text-white relative rounded-lg h-full w-full bg-zinc-900 flex flex-col items-start justify-end p-16">
+            <img src="{{ asset('images/login.jpg') }}" alt="Ilustrasi Login"
+                class="absolute inset-0 w-full h-full object-cover opacity-40">
         </div>
     </div>
 </div>

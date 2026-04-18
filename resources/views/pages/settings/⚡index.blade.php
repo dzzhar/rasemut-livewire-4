@@ -5,6 +5,7 @@ use App\Actions\Fortify\UpdateUserPassword;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Flux\Flux;
 
 new #[Title('Pengaturan')] class extends Component {
     public $fullname;
@@ -24,7 +25,7 @@ new #[Title('Pengaturan')] class extends Component {
             'fullname' => $this->fullname,
         ]);
 
-        $this->dispatch('show-feedback', title: 'Profil Berhasil Diperbarui', message: 'Profil Anda telah berhasil diperbarui.');
+        Flux::toast(heading: 'Profil Berhasil Diperbarui', text: 'Profil Anda telah berhasil diperbarui.', variant: 'success');
 
         $this->resetErrorBag();
         $this->resetValidation();
@@ -39,7 +40,9 @@ new #[Title('Pengaturan')] class extends Component {
             'password_confirmation' => $this->password_confirmation,
         ]);
 
-        $this->dispatch('show-feedback', title: 'Kata Sandi Berhasil Diperbarui', message: 'Kata sandi Anda telah berhasil diperbarui.');
+        Flux::toast(heading: 'Kata Sandi Berhasil Diperbarui', text: 'Kata sandi Anda telah berhasil diperbarui.', variant: 'success');
+
+        $this->reset(['current_password', 'password', 'password_confirmation']);
 
         $this->resetErrorBag();
         $this->resetValidation();

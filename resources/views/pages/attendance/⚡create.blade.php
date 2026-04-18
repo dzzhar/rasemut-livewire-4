@@ -25,11 +25,11 @@ new class extends Component {
 
         $service = new AttendanceService($this->employeeId);
         $this->isWorkingDay = $service->isWorkingDay(now());
-        $check = $service->canAttendToday();
+        // $check = $service->canAttendToday();
 
-        if ($check) {
-            return $check;
-        }
+        // if ($check) {
+        //     return $check;
+        // }
 
         $this->refreshState($service);
     }

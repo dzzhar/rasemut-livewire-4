@@ -64,7 +64,6 @@ class AttendanceService
                 $this->doCheckOut($attendance, $now);
             }
 
-
             return [
                 'heading' => 'Presensi Berhasil!',
                 'text' => 'Presensi Anda berhasil dilakukan.',

@@ -32,23 +32,23 @@ new class extends Component {
         $employee = Auth::user()?->employee->id;
         $checker = app(CheckerService::class)->setEmployee($employee);
 
-        // cek apakah ada cuti di periode ini
-        if ($checker->hasLeaveInRange($this->start_date, $this->end_date)) {
-            Flux::toast(heading: 'Gagal Mengajukan Cuti', text: 'Anda sudah atau sedang mengajukan cuti pada periode ini, sehingga tidak dapat mengajukan cuti.', variant: 'warning');
-            return;
-        }
+        // // cek apakah ada cuti di periode ini
+        // if ($checker->hasLeaveInRange($this->start_date, $this->end_date)) {
+        //     Flux::toast(heading: 'Gagal Mengajukan Cuti', text: 'Anda sudah atau sedang mengajukan cuti pada periode ini, sehingga tidak dapat mengajukan cuti.', variant: 'warning');
+        //     return;
+        // }
 
-        // cek apakah telah melakukan izin hari ini
-        if ($checker->hasPermissionInRange($this->start_date, $this->end_date)) {
-            Flux::toast(heading: 'Gagal Mengajukan Cuti', text: 'Anda telah mengajukan izin hari ini. Jika terjadi kesalahan, silakan hubungi Admin.', variant: 'danger');
-            return;
-        }
+        // // cek apakah telah melakukan izin hari ini
+        // if ($checker->hasPermissionInRange($this->start_date, $this->end_date)) {
+        //     Flux::toast(heading: 'Gagal Mengajukan Cuti', text: 'Anda telah mengajukan izin hari ini. Jika terjadi kesalahan, silakan hubungi Admin.', variant: 'danger');
+        //     return;
+        // }
 
-        // cek apakah telah melakukan presensi hari ini
-        if ($checker->hasAttendanceInRange($this->start_date, $this->end_date)) {
-            Flux::toast(heading: 'Gagal Mengajukan Cuti', text: 'Anda telah melakukan presensi hari ini, sehingga tidak dapat mengajukan cuti.', variant: 'warning');
-            return;
-        }
+        // // cek apakah telah melakukan presensi hari ini
+        // if ($checker->hasAttendanceInRange($this->start_date, $this->end_date)) {
+        //     Flux::toast(heading: 'Gagal Mengajukan Cuti', text: 'Anda telah melakukan presensi hari ini, sehingga tidak dapat mengajukan cuti.', variant: 'warning');
+        //     return;
+        // }
 
         // jika belum, simpan
         DB::transaction(function () use ($employee) {
