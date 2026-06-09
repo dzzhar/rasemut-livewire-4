@@ -47,8 +47,9 @@ class AttendanceService
             if ($distance > $this->setting->radius_attendance) {
                 return [
                     'heading' => 'Diluar Jangkauan',
-                    'text' => "Jarak Anda " . round($distance) . " m dari sekolah. Maksimal radius adalah {$this->setting->radius_attendance} m.",
-                    'variant' => 'error',
+                    'text' => "Jarak Anda " . round($distance) . " meter dari sekolah. 
+                    Maksimal radius adalah {$this->setting->radius_attendance} meter.",
+                    'variant' => 'danger',
                 ];
             }
 

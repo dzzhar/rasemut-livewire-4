@@ -48,25 +48,25 @@ new class extends Component {
         $this->validate();
 
         $employee = Auth::user()?->employee->id;
-        // $checker = app(CheckerService::class)->setEmployee($employee);
+        $checker = app(CheckerService::class)->setEmployee($employee);
 
-        // // cek apakah telah mengajukan izin hari ini
-        // if ($checker->hasPermissionToday(now())) {
-        //     FLux::toast(heading: 'Gagal Mengajukan Izin', text: 'Anda telah mengajukan izin hari ini. Jika terjadi kesalahan, silakan hubungi Admin.', variant: 'danger');
-        //     return;
-        // }
+        // cek apakah telah mengajukan izin hari ini
+        if ($checker->hasPermissionToday(now())) {
+            FLux::toast(heading: 'Gagal Mengajukan Izin', text: 'Anda telah mengajukan izin hari ini. Jika terjadi kesalahan, silakan hubungi Admin.', variant: 'danger');
+            return;
+        }
 
-        // // cek apakah ada cuti di periode ini
-        // if ($checker->hasLeaveToday(now())) {
-        //     FLux::toast(heading: 'Gagal Mengajukan Izin', text: 'Anda sedang dalam periode cuti hari ini, sehingga tidak dapat melakukan izin.', variant: 'warning');
-        //     return;
-        // }
+        // cek apakah ada cuti di periode ini
+        if ($checker->hasLeaveToday(now())) {
+            FLux::toast(heading: 'Gagal Mengajukan Izin', text: 'Anda sedang dalam periode cuti hari ini, sehingga tidak dapat melakukan izin.', variant: 'warning');
+            return;
+        }
 
-        // // cek apakah telah melakukan presensi hari ini
-        // if ($checker->hasAttendanceToday(now())) {
-        //     FLux::toast(heading: 'Gagal Mengajukan Izin', text: 'Anda telah melakukan presensi hari ini, sehingga tidak dapat mengajukan izin.', variant: 'warning');
-        //     return;
-        // }
+        // cek apakah telah melakukan presensi hari ini
+        if ($checker->hasAttendanceToday(now())) {
+            FLux::toast(heading: 'Gagal Mengajukan Izin', text: 'Anda telah melakukan presensi hari ini, sehingga tidak dapat mengajukan izin.', variant: 'warning');
+            return;
+        }
 
         $path = null;
         if ($this->file_path) {

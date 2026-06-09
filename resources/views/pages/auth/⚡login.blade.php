@@ -26,7 +26,7 @@ new #[Layout('layouts::auth')] class extends Component {};
                     <flux:input label="Email" type="email" placeholder="emailanda@gmail.com" name="email"
                         :value="old('email')" autocomplete="email" />
                     <flux:input label="Kata Sandi" type="password" placeholder="Kata sandi Anda" name="password"
-                        viewable />
+                        autocomplete="current-password" viewable />
                     <flux:button variant="primary" class="w-full" type="submit" x-bind:disabled="loading">Masuk
                     </flux:button>
                 </form>
@@ -36,7 +36,7 @@ new #[Layout('layouts::auth')] class extends Component {};
 
     <div class="flex-1 p-4 max-lg:hidden">
         <div
-            class="text-white relative rounded-lg h-full w-full bg-zinc-900 flex flex-col items-start justify-end p-16">
+            class="text-white relative rounded-lg overflow-hidden h-full w-full bg-zinc-900 flex flex-col items-start justify-end p-16">
             <img src="{{ asset('images/login.jpg') }}" alt="Ilustrasi Login"
                 class="absolute inset-0 w-full h-full object-cover opacity-40">
         </div>

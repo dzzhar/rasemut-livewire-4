@@ -16,18 +16,11 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        Position::factory(2)->create();
+        Position::factory(1)->create();
         AttendanceSetting::factory()->create();
 
-        $this->createEmployeeUser('Admin', 'admin@gmail.com', ['employee', 'admin']);
-        $this->createEmployeeUser('Guru Satu', 'guru1@gmail.com', 'employee');
-        $this->createEmployeeUser('Guru Dua', 'guru2@gmail.com', 'employee');
-        $this->createEmployeeUser('Guru Tiga', 'guru3@gmail.com', 'employee');
-        $this->createEmployeeUser('Guru Empat', 'guru4@gmail.com', 'employee');
-        $this->createEmployeeUser('Guru Lima', 'guru5@gmail.com', 'employee');
-        $this->createEmployeeUser('Guru Enam', 'guru6@gmail.com', 'employee');
-        $this->createEmployeeUser('Guru Tujuh', 'guru7@gmail.com', 'employee');
-        $this->createEmployeeUser('Guru Delapan', 'guru8@gmail.com', 'employee');
+        $this->createEmployeeUser('Administrator', 'admin@gmail.com', ['employee', 'admin']);
+        $this->createEmployeeUser('Karyawan', 'karyawan@gmail.com', 'employee');
     }
 
     private function createEmployeeUser($name, $email, array|string $roles)

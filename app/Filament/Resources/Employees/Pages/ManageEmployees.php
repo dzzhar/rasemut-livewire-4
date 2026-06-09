@@ -135,15 +135,6 @@ class ManageEmployees extends ManageRecords
                         ])
                         ->placeholder('Semua Status')
                         ->nullable(),
-
-                    Select::make('role')
-                        ->label('Role')
-                        ->options([
-                            'employee' => 'Karyawan',
-                            'admin' => 'Admin',
-                        ])
-                        ->placeholder('Semua Role')
-                        ->nullable(),
                 ])
         ];
     }
