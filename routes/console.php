@@ -1,5 +1,7 @@
 <?php
 
+use Carbon\Carbon;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('session:prune')->dailyAt('23:59'); // session
@@ -12,6 +14,6 @@ Schedule::command('app:update-attendance-status') // update attendance status ev
     ->dailyAt('23:59')
     ->timezone('Asia/Jakarta');
 Schedule::command('app:deactivate-inactive-users') // deactivate user if not active for 5 working days
-    ->dailyAt('00:38'); 
+    ->dailyAt('00:00');
 
 // jalankan: php artisan schedule:work

@@ -45,4 +45,6 @@ return [
         'current_password' => 'kata sandi saat ini',
         'password_confirmation' => 'konfirmasi kata sandi',
     ],
+
+
 ];

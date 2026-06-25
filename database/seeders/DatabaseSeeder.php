@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
             'roles' => is_array($roles) ? $roles : [$roles],
             'is_active' => true,
             'last_activity' => now(),
-            'password' => Hash::make('password'),
+            'password' => Hash::make('12345678'),
         ]);
 
         return Employee::factory()->create([

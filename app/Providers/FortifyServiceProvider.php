@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-
+use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
 use App\Models\User;
@@ -52,6 +52,7 @@ class FortifyServiceProvider extends ServiceProvider
         // customize fortify actions
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
+        Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
         Fortify::authenticateUsing(function (Request $request) {
             $request->validate([
@@ -90,6 +91,14 @@ class FortifyServiceProvider extends ServiceProvider
 
         Fortify::loginView(function () {
             return route('login');
+        });
+
+        Fortify::requestPasswordResetLinkView(function () {
+            return view('pages.auth.forgot-password');
+        });
+
+        Fortify::resetPasswordView(function (Request $request) {
+            return view('pages.auth.reset-password', ['request' => $request]);
         });
     }
 }

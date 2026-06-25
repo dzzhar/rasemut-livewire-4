@@ -73,7 +73,7 @@ return [
     |
     */
 
-    'home' => '/',
+    'home' => '/home',
 
     /*
     |--------------------------------------------------------------------------
@@ -130,7 +130,7 @@ return [
     |
     */
 
-    'views' => false,
+    'views' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -144,6 +144,7 @@ return [
     */
 
     'features' => [
+        Features::resetPasswords(),
         Features::updateProfileInformation(),
         Features::updatePasswords(),
     ],

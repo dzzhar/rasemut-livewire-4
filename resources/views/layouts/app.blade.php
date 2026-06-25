@@ -23,6 +23,7 @@
     </flux:main>
 
     <livewire:action-modal />
+
     @persist('toast')
         <flux:toast.group position="top-center">
             <flux:toast />
