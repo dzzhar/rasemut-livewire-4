@@ -15,7 +15,7 @@ new class extends Component {
 
     #[Validate('required|after_or_equal:today')]
     public $start_date;
-    #[Validate('required|after:start_date')]
+    #[Validate('required|after_or_equal:start_date')]
     public $end_date;
     #[Validate('required')]
     public $description;
