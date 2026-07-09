@@ -19,9 +19,9 @@ class AttendanceExporter extends Exporter
             ExportColumn::make('attendance_date')->label('Tanggal Presensi'),
             ExportColumn::make('check_in')->label('Jam Masuk'),
             ExportColumn::make('check_out')->label('Jam Keluar'),
-            ExportColumn::make('late_minutes')->label('Menit Terlambat'),
-            ExportColumn::make('early_leave_minutes')->label('Menit Pulang Cepat'),
-            ExportColumn::make('overtime_minutes')->label('Menit Lembur'),
+            // ExportColumn::make('late_minutes')->label('Menit Terlambat'),
+            // ExportColumn::make('early_leave_minutes')->label('Menit Pulang Cepat'),
+            // ExportColumn::make('overtime_minutes')->label('Menit Lembur'),
             ExportColumn::make('status'),
             ExportColumn::make('description')->label('Keterangan'),
         ];

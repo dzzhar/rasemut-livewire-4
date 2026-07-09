@@ -73,6 +73,7 @@ class AttendanceService
         });
     }
 
+    // check today activity 
     public function canAttendToday(): ?array
     {
         $now = now();

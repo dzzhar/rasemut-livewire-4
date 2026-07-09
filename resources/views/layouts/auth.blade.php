@@ -1,3 +1,4 @@
+{{-- layout app for user interface auth --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 

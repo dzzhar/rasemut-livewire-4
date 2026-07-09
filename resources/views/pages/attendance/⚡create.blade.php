@@ -23,6 +23,7 @@ new class extends Component {
     {
         $this->employeeId = Auth::user()->employee->id;
 
+        // instansiasi atttendance service
         $service = new AttendanceService($this->employeeId);
         $this->isWorkingDay = $service->isWorkingDay(now());
         $check = $service->canAttendToday();
@@ -42,6 +43,7 @@ new class extends Component {
         $this->setButtonStatus();
     }
 
+    // mengganti warna dan label status
     protected function setButtonStatus()
     {
         if (!$this->check_in) {
@@ -53,6 +55,7 @@ new class extends Component {
         }
     }
 
+    // fungsi action untuk wire:click
     public function absensiButton()
     {
         $service = new AttendanceService($this->employeeId);
@@ -98,6 +101,7 @@ new class extends Component {
                     <livewire:attendance-card title="Check Out" :time="$check_out" :key="'out-' . ($check_out ?? '0')" />
                 </div>
 
+                {{-- menggunakan button absensiButton --}}
                 <flux:button variant="primary" :color="$button['color'] ?? ''"
                     class="w-full lg:col-span-2 {{ !$button ? 'hidden!' : '' }}" wire:click="absensiButton">
                     {{ $button['label'] ?? '' }}

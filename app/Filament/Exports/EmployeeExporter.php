@@ -29,6 +29,7 @@ class EmployeeExporter extends Exporter
             ExportColumn::make('leaves_count')->label('Cuti'),
             ExportColumn::make('absent_count')->label('Tidak Hadir'),
 
+            // from manage employees from resources
             ExportColumn::make('attendance_rate')
                 ->label('Persentase Kehadiran (%)')
                 ->formatStateUsing(fn($state) => number_format($state, 2) . '%'),

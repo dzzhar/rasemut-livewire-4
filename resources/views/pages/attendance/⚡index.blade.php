@@ -32,5 +32,6 @@ new class extends Component {
 
     <livewire:history-card headerTitle="Riwayat Presensi" model="\App\Models\Attendance" dateColumn="attendance_date"
         :select="['id', 'attendance_date', 'check_out', 'status', 'description']" lazy />
+
     <livewire:pages::attendance.detail />
 </div>

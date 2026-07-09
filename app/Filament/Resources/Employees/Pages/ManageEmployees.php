@@ -43,6 +43,10 @@ class ManageEmployees extends ManageRecords
                         ->count();
 
                     return $query
+                        // hadir = 100%
+                        // tidak_lengkap = 50%
+                        // cuti = kurangi total hari
+                        // izin & tidak hadir = 0%
                         ->withCount([
                             'attendances as present_count' => fn($q) => $q
                                 ->where('status', 'hadir')

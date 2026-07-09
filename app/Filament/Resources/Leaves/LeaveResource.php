@@ -44,7 +44,7 @@ class LeaveResource extends Resource
     public static function getNavigationBadgeTooltip(): ?string
     {
         return static::getModel()::where('status', 'pending')
-            ->count() > 0 ? 'Menunggu persetujuan Anda' : 'Semua telah Anda setujui';
+            ->count() > 0 ? 'Menunggu persetujuan Anda' : 'Semua pengajuan telah diproses';
     }
 
     public static function infolist(Schema $schema): Schema
@@ -133,6 +133,7 @@ class LeaveResource extends Resource
                         // kembalikan status lama jika gagal
                         return $record->status->value;
                     })
+                    // nonaktif ketika sudah 12 jam
                     ->disabled(
                         fn($record) =>
                         $record->first_status_updated_at?->addHours(12)?->isPast() ?? false

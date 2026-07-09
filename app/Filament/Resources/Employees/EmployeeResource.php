@@ -48,10 +48,13 @@ class EmployeeResource extends Resource
                     ])
                     ->searchable(false)
                     ->afterStateUpdated(function ($state, $set, $record) {
+                        $roles = array_filter((array) $state);
+
                         if ($record?->user?->hasActiveSession()) {
-                            if (!in_array('admin', $state)) {
-                                $set('user_role', array_merge($state, ['admin']));
+                            if (!in_array('admin', $roles)) {
+                                $roles[] = 'admin';
                             }
+                            $set('user_role', array_unique($roles));
                         }
                     }),
                 Select::make('position_id')

@@ -19,8 +19,16 @@ class DatabaseSeeder extends Seeder
         Position::factory(1)->create();
         AttendanceSetting::factory()->create();
 
-        $this->createEmployeeUser('Administrator', 'admin@gmail.com', ['employee', 'admin']);
-        $this->createEmployeeUser('Karyawan', 'karyawan@gmail.com', 'employee');
+        // generate user
+        $admin =  $this->createEmployeeUser('Administrator', 'admin@gmail.com', ['employee', 'admin']);
+        $employee = $this->createEmployeeUser('Karyawan', 'karyawan@gmail.com', 'employee');
+
+        // Generate attendance, permit, n leave data 
+        $this->generateFullMonthData($admin, '2026-06-01', '2026-06-30');
+        $this->generateFullMonthData($employee, '2026-06-01', '2026-06-30');
+
+        $this->generateFullMonthData($admin, '2026-07-01', '2026-07-07');
+        $this->generateFullMonthData($employee, '2026-07-01', '2026-07-07');
     }
 
     private function createEmployeeUser($name, $email, array|string $roles)
@@ -40,7 +48,7 @@ class DatabaseSeeder extends Seeder
         ]);
     }
 
-    private function generateFullMonthData($employee, $month)
+    private function generateFull($employee, $month)
     {
         $date = now()->setMonth($month)->startOfMonth();
         $daysInMonth = $date->daysInMonth;
@@ -76,6 +84,106 @@ class DatabaseSeeder extends Seeder
                 }
             }
             $date->addDay();
+        }
+    }
+
+    private function generateFullMonthData($employee, $startDate, $endDate)
+    {
+        $period = \Carbon\CarbonPeriod::create($startDate, $endDate);
+
+        $hadir = 0;
+        $tidakLengkap = 0;
+        $tidakHadir = 0;
+        $izin = 0;
+        $cuti = 0;
+
+        foreach ($period as $date) {
+            if ($date->isWeekend()) continue;
+
+            // BATAS MAKSIMAL
+            if ($izin + $cuti + $tidakHadir >= 10) {
+                $type = 'attendance';
+            } else {
+                $rand = rand(1, 100);
+
+                if ($rand <= 70) {
+                    $type = 'attendance'; // mayoritas hadir
+                } elseif ($rand <= 80) {
+                    $type = 'incomplete';
+                } elseif ($rand <= 88) {
+                    $type = 'absent';
+                } elseif ($rand <= 94) {
+                    $type = 'permission';
+                } else {
+                    $type = 'leave';
+                }
+            }
+
+            switch ($type) {
+                case 'attendance':
+                    $hadir++;
+
+                    // variasi: normal / telat / lembur
+                    $checkIn = $date->copy()->setTime(rand(8, 9), rand(0, 59));
+                    $checkOut = $date->copy()->setTime(rand(16, 19), rand(0, 59));
+
+                    Attendance::create([
+                        'employee_id' => $employee->id,
+                        'attendance_date' => $date->toDateString(),
+                        'check_in' => $checkIn,
+                        'check_out' => $checkOut,
+                        'status' => 'hadir',
+                    ]);
+                    break;
+
+                case 'incomplete':
+                    $tidakLengkap++;
+
+                    Attendance::create([
+                        'employee_id' => $employee->id,
+                        'attendance_date' => $date->toDateString(),
+                        'check_in' => $date->copy()->setTime(8, 0),
+                        'check_out' => null,
+                        'status' => 'tidak_lengkap',
+                    ]);
+                    break;
+
+                case 'absent':
+                    $tidakHadir++;
+
+                    Attendance::create([
+                        'employee_id' => $employee->id,
+                        'attendance_date' => $date->toDateString(),
+                        'status' => 'tidak_hadir',
+                    ]);
+                    break;
+
+                case 'permission':
+                    $izin++;
+
+                    Permission::create([
+                        'employee_id' => $employee->id,
+                        'permission_date' => $date->toDateString(),
+                        'permission_type' => 'pribadi',
+                        'description' => 'Keperluan pribadi',
+                        'status' => 'izin',
+                    ]);
+                    break;
+
+                case 'leave':
+                    $cuti++;
+
+                    Leave::create([
+                        'employee_id' => $employee->id,
+                        'request_date' => $date->toDateString(),
+                        'leave_code' => 'CT',
+                        'start_date' => $date->toDateString(),
+                        'end_date' => $date->toDateString(),
+                        'status' => 'disetujui',
+                        'description' => 'Cuti tahunan',
+                    ]);
+                    break;
+            }
         }
     }
 }
